@@ -121,29 +121,35 @@
     }
 
     function prosesTransaksi() {
-      const pet = document.getElementById('petugas').value;
-      const kg = document.getElementById('kg').value;
-      const hrg = document.getElementById('harga').value;
-      const tot = kg * hrg;
-      const tgl = new Date().toLocaleString('id-ID');
+  const pet = document.getElementById('petugas').value;
+  const kg = document.getElementById('kg').value;
+  const hrg = document.getElementById('harga').value;
+  const tot = kg * hrg;
+  const tgl = new Date().toLocaleString('id-ID');
 
-      if(!pet || !kg || !hrg) return alert("Lengkapi data!");
+  if(!pet || !kg || !hrg) return alert("Lengkapi data!");
 
-      document.getElementById('btn-save').innerText = "MENYIMPAN...";
-      
-      google.script.run.withSuccessHandler(() => {
-        // RawBT Print
-        const printUrl = `rawbt:data/text,BUMDes Ngabei Berkah\n----------------\nPetugas: ${pet}\nBerat  : ${kg} kg\nHarga  : ${hrg}\nTotal  : ${tot}\n----------------\n${tgl}\nSuksess!`;
-        window.location.href = printUrl;
-        
-        // Reset Form sesuai permintaan
-        document.getElementById('petugas').value = "";
-        document.getElementById('kg').value = "";
-        document.getElementById('harga').value = "";
-        document.getElementById('total-view').innerText = "Rp 0";
-        document.getElementById('btn-save').innerText = "SAVE & PRINT";
-        refreshData();
-      }).saveData('transaksi', [new Date(), pet, kg, hrg, tot]);
+  // --- OPTIMASI DI SINI ---
+  // Tampilkan loading di tombol agar user tahu proses berjalan
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.innerText = "MENGIRIM...";
+
+  // Langsung jalankan Print RawBT tanpa menunggu server (Lebih Cepat)
+  const printUrl = `rawbt:data/text,BUMDes Ngabei Berkah\n----------------\nPetugas: ${pet}\nBerat  : ${kg} kg\nHarga  : ${hrg}\nTotal  : ${tot}\n----------------\n${tgl}\n`;
+  window.location.href = printUrl;
+
+  google.script.run.withSuccessHandler(() => {
+    // Reset Form setelah server mengonfirmasi sukses
+    document.getElementById('petugas').value = "";
+    document.getElementById('kg').value = "";
+    document.getElementById('harga').value = "";
+    document.getElementById('total-view').innerText = "Rp 0";
+    btn.disabled = false;
+    btn.innerText = "SAVE & PRINT";
+    refreshData();
+  }).saveData('transaksi', [new Date(), pet, kg, hrg, tot]);
+}
     }
 
     function simpanBiaya() {
