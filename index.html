@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BUMDes MANDIRI - PDF Version</title>
+    <title>BUMDes NGABEHI BERKAH</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { background-color: #f8fafc; padding-bottom: 90px; }
@@ -15,17 +14,18 @@
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; border-top: 1px solid #e2e8f0; height: 75px; z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #64748b; border: none; background: none; }
         .nav-item.active { color: #2563eb; }
+        .table-responsive { border-radius: 8px; overflow: hidden; }
     </style>
 </head>
 <body>
 
 <div class="p-3">
     <div class="bg-dark text-white p-4 rounded-4 mb-4 shadow">
-        <h4 class="fw-bold mb-0 text-info">BUMDes MANDIRI</h4>
+        <h4 class="fw-bold mb-0 text-info">BUMDes NGABEHI BERKAH</h4>
         <small id="tgl-info"></small>
         <hr class="opacity-25">
         <div class="d-flex justify-content-between text-warning fw-bold">
-            <small>Saldo Bersih:</small>
+            <small>Saldo Bersih Hari Ini:</small>
             <h5 id="dash-saldo">Rp 0</h5>
         </div>
     </div>
@@ -49,7 +49,7 @@
             <small class="opacity-75">TOTAL BAYAR</small>
             <h2 id="total-display" class="fw-bold">Rp 0</h2>
         </div>
-        <button onclick="simpanTrx()" class="btn btn-dark w-100 py-3 fw-bold">SIMPAN & DOWNLOAD NOTA (PDF)</button>
+        <button onclick="simpanTrx()" class="btn btn-dark w-100 py-3 fw-bold">SAVE & PRINT</button>
     </div>
 
     <div id="tab-biaya" class="tab">
@@ -64,7 +64,7 @@
     </div>
 
     <div id="tab-riwayat" class="tab">
-        <h6 class="fw-bold small text-muted px-2">RIWAYAT TRANSAKSI (KG & HARGA)</h6>
+        <h6 class="fw-bold small text-muted px-2">RIWAYAT TRANSAKSI</h6>
         <div id="list-riwayat"></div>
     </div>
 
@@ -73,26 +73,21 @@
             <h6 class="fw-bold small">LAPORAN HARIAN</h6>
             <input type="date" id="tgl-lap" class="form-control mb-2" onchange="updateLaporan()">
             <div id="res-harian" class="p-2 bg-light rounded small fw-bold mb-2">Pilih Tanggal</div>
-            <button onclick="cetakLaporan('Harian')" class="btn btn-dark btn-sm w-100">SIMPAN LAPORAN PDF</button>
+            <button onclick="cetakLaporan('Harian')" class="btn btn-dark btn-sm w-100">PRINT LAPORAN</button>
         </div>
         <div class="app-card border-top border-primary border-4">
             <h6 class="fw-bold small text-primary">LAPORAN BULANAN</h6>
             <input type="month" id="bln-lap" class="form-control mb-2" onchange="updateLaporan()">
             <div id="res-bulanan" class="p-2 bg-light rounded small fw-bold mb-2 text-primary">Pilih Bulan</div>
-            <button onclick="cetakLaporan('Bulanan')" class="btn btn-primary btn-sm w-100">SIMPAN LAPORAN PDF</button>
+            <button onclick="cetakLaporan('Bulanan')" class="btn btn-primary btn-sm w-100">PRINT LAPORAN</button>
         </div>
     </div>
 
     <div id="tab-opsi" class="tab">
-        <div class="app-card">
-            <button onclick="exportExcel()" class="btn btn-success w-100 py-3 fw-bold mb-4">BACKUP KE EXCEL</button>
-            <div class="border-top pt-3">
-                <p class="small fw-bold text-center text-muted">RESTORE DATA</p>
-                <input type="file" id="file-import" class="form-control mb-2">
-                <button onclick="importExcel()" class="btn btn-outline-secondary w-100 btn-sm">PROSES IMPORT</button>
-            </div>
+        <div class="app-card text-center">
+            <button onclick="exportExcel()" class="btn btn-success w-100 py-3 fw-bold mb-2">BACKUP KE EXCEL</button>
+            <small class="text-muted">Data disimpan permanen di Google Sheets.</small>
         </div>
-        <button onclick="resetData()" class="btn btn-link text-danger w-100 mt-5 opacity-25">Reset Semua Data</button>
     </div>
 </div>
 
@@ -105,15 +100,37 @@
 </nav>
 
 <script>
-    const { jsPDF } = window.jspdf;
-    let db_trx = JSON.parse(localStorage.getItem('db_final_v21_trx')) || [];
-    let db_biaya = JSON.parse(localStorage.getItem('db_final_v21_biaya')) || [];
+    // GANTI URL INI DENGAN URL WEB APP ANDA YANG TERBARU
+    const API_URL = "https://script.google.com/macros/s/AKfycbx1k_4-qjxRiM_DIj33AAW2sboLEq2OzCeRGLwIxLc9C8S9x5V-B4lsS2tYX6bKzMLd/exec"; 
 
-    window.onload = () => {
-        document.getElementById('tgl-info').innerText = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        updateDashboard();
-        renderBiaya();
+    let db_trx = [];
+    let db_biaya = [];
+    let limitTampilTrx = 20;
+
+    const loading = (show) => {
+        document.body.style.opacity = show ? "0.6" : "1";
+        document.body.style.pointerEvents = show ? "none" : "auto";
     };
+
+    window.onload = async () => {
+        document.getElementById('tgl-info').innerText = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+        await muatDataDariCloud();
+    };
+
+    async function muatDataDariCloud() {
+        try {
+            loading(true);
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            db_trx = data.db_trx || [];
+            db_biaya = data.db_biaya || [];
+            updateDashboard();
+        } catch (err) {
+            alert("Gagal koneksi ke server!");
+        } finally {
+            loading(false);
+        }
+    }
 
     function nav(s, el) {
         document.querySelectorAll('.tab').forEach(x => x.style.display = 'none');
@@ -130,104 +147,142 @@
     }
 
     function updateDashboard() {
-        const h = new Date().toISOString().slice(0,10);
-        const o = db_trx.filter(x => x.tgl.startsWith(h)).reduce((a,b) => a + b.total, 0);
-        const b = db_biaya.filter(x => x.tgl.startsWith(h)).reduce((a,b) => a + b.nominal, 0);
-        document.getElementById('dash-saldo').innerText = "Rp " + (o - b).toLocaleString();
+        const hariIni = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric'});
+        const totalMasuk = db_trx.filter(x => x.tgl && x.tgl.startsWith(hariIni)).reduce((a, b) => a + (Number(b.total) || 0), 0);
+        const totalKeluar = db_biaya.filter(x => x.tgl && x.tgl.startsWith(hariIni)).reduce((a, b) => a + (Number(b.nominal) || 0), 0);
+        document.getElementById('dash-saldo').innerText = "Rp " + (totalMasuk - totalKeluar).toLocaleString();
     }
 
-    // FUNGSI BUAT PDF (PENGGANTI PRINT YANG GAGAL)
-    function buatPDF(judul, isiTeks) {
-        const doc = new jsPDF({ unit: 'mm', format: [80, 150] }); // Ukuran kertas thermal
-        doc.setFont("courier", "bold");
-        doc.text("BUMDes MANDIRI", 40, 10, { align: "center" });
-        doc.setFontSize(10);
-        doc.text(new Date().toLocaleString(), 40, 16, { align: "center" });
-        doc.text("--------------------------", 40, 22, { align: "center" });
-        
-        let y = 30;
-        isiTeks.forEach(line => {
-            doc.text(line, 5, y);
-            y += 7;
-        });
-
-        doc.text("--------------------------", 40, y+5, { align: "center" });
-        doc.text("Terima Kasih", 40, y+12, { align: "center" });
-        doc.save(`${judul}.pdf`);
+    function cetakRawBT(item) {
+        let s = "   BUMDes NGABEHI BERKAH\n================================\nTgl  : " + (item.tgl || "-") + "\nAdm  : " + item.adm + "\n--------------------------------\nBERAT  : " + item.kg + " Kg\nHARGA  : Rp " + item.hrg.toLocaleString() + "\nTOTAL  : Rp " + item.total.toLocaleString() + "\n================================\n       TERIMA KASIH\n\n\n";
+        window.location.href = "rawbt:base64," + btoa(s);
     }
 
-    function simpanTrx() {
-        const adm = document.getElementById('admin').value || 'Petugas';
+    async function simpanTrx() {
+        const adm = document.getElementById('admin').value || 'Admin';
         const kg = Number(document.getElementById('berat').value);
         const hrg = Number(document.getElementById('harga').value);
         if(!kg) return alert("Isi Berat!");
-
-        const item = { id: Date.now(), tgl: new Date().toISOString(), adm, kg, hrg, total: kg * hrg };
-        db_trx.push(item);
-        localStorage.setItem('db_final_v21_trx', JSON.stringify(db_trx));
-
-        const rincian = [
-            `Admin  : ${item.adm}`,
-            `Berat  : ${item.kg} Kg`,
-            `Harga  : Rp ${item.hrg.toLocaleString()}`,
-            ` `,
-            `TOTAL  : Rp ${item.total.toLocaleString()}`
-        ];
-        buatPDF("Nota_BUMDes", rincian);
-        
-        document.getElementById('berat').value = ""; hitung(); updateDashboard();
+        const item = { id: Date.now(), adm, kg, hrg, total: kg * hrg };
+        try {
+            loading(true);
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "add_trx", data: item }) });
+            if(res.ok) {
+                db_trx.push({...item, tgl: new Date().toLocaleDateString('id-ID')});
+                cetakRawBT(item);
+                document.getElementById('berat').value = ""; hitung(); updateDashboard();
+            }
+        } catch (e) { alert("Gagal Simpan!"); } finally { loading(false); }
     }
 
-    function simpanBiaya() {
+    async function simpanBiaya() {
         const ket = document.getElementById('ket-biaya').value;
         const nom = Number(document.getElementById('nom-biaya').value);
         if(!nom) return alert("Isi nominal!");
-        db_biaya.push({ id: Date.now(), tgl: new Date().toISOString(), ket, nominal: nom });
-        localStorage.setItem('db_final_v21_biaya', JSON.stringify(db_biaya));
-        document.getElementById('ket-biaya').value = ""; document.getElementById('nom-biaya').value = "";
-        renderBiaya(); updateDashboard();
+        const item = { id: Date.now(), ket, nominal: nom };
+        try {
+            loading(true);
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "add_biaya", data: item }) });
+            if(res.ok) {
+                db_biaya.push({...item, tgl: new Date().toLocaleDateString('id-ID')});
+                document.getElementById('ket-biaya').value = ""; document.getElementById('nom-biaya').value = "";
+                renderBiaya(); updateDashboard();
+            }
+        } catch (e) { alert("Gagal!"); } finally { loading(false); }
     }
 
     function renderBiaya() {
         document.getElementById('list-biaya-full').innerHTML = db_biaya.slice().reverse().map(b => `
-            <div class="app-card d-flex justify-content-between py-2 border-end border-danger border-4">
-                <div><b class="small text-uppercase">${b.ket}</b><br><small class="text-muted">${b.tgl.slice(0,10)}</small></div>
-                <b class="text-danger">Rp ${b.nominal.toLocaleString()}</b>
-            </div>`).join('') || '<p class="text-center small py-3">Kosong</p>';
+            <div class="app-card border-end border-danger border-4 py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><b>${b.ket}</b><br><small class="text-muted">${b.tgl.slice(0,10)}</small></div>
+                    <div class="text-end">
+                        <b class="text-danger">Rp ${Number(b.nominal).toLocaleString()}</b><br>
+                        <button onclick="editBiaya(${b.id},'${b.ket}',${b.nominal})" class="btn btn-link btn-sm p-0 me-2">Edit</button>
+                        <button onclick="hapusData(${b.id},'biaya')" class="btn btn-link btn-sm p-0 text-danger">Hapus</button>
+                    </div>
+                </div>
+            </div>`).join('') || '<p class="text-center py-3">Kosong</p>';
     }
 
     function renderRiwayat() {
-        document.getElementById('list-riwayat').innerHTML = db_trx.slice().reverse().map(x => `
-            <div class="app-card shadow-sm">
-                <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                    <div><b class="small text-uppercase">${x.adm}</b><br><small class="text-muted">${x.tgl.replace('T',' ').slice(0,16)}</small></div>
-                    <b class="text-primary">Rp ${x.total.toLocaleString()}</b>
-                </div>
-                <div class="d-flex justify-content-between small fw-bold text-secondary">
-                    <span>${x.kg} Kg</span>
-                    <span>@ Rp ${x.hrg.toLocaleString()}</span>
-                </div>
-            </div>`).join('') || '<p class="text-center small py-5">Kosong</p>';
+        const data = db_trx.slice().reverse().slice(0, limitTampilTrx);
+        let h = `<div class="table-responsive"><table class="table table-sm table-striped small">
+            <thead class="table-dark"><tr><th>Tgl/Adm</th><th>Detail</th><th>Aksi</th></tr></thead>
+            <tbody>${data.map(x => `
+                <tr>
+                    <td><small>${x.tgl.slice(0,10)}</small><br><b>${x.adm}</b></td>
+                    <td>${x.kg}kg<br><b class="text-primary">Rp${x.total.toLocaleString()}</b></td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button onclick="cetakRawBT(${JSON.stringify(x).replace(/"/g, '&quot;')})" class="btn btn-dark btn-sm">🖨️</button>
+                            <button onclick="editTrx(${x.id},'${x.adm}',${x.kg},${x.hrg})" class="btn btn-primary btn-sm">✏️</button>
+                            <button onclick="hapusData(${x.id},'trx')" class="btn btn-danger btn-sm">🗑️</button>
+                        </div>
+                    </td>
+                </tr>`).join('')}</tbody></table></div>`;
+        if(db_trx.length > limitTampilTrx) h += `<button onclick="limitTampilTrx+=20;renderRiwayat()" class="btn btn-outline-primary btn-sm w-100">Muat Lebih Banyak...</button>`;
+        document.getElementById('list-riwayat').innerHTML = h;
+    }
+
+    async function hapusData(id, type) {
+        if(!confirm("Hapus permanen?")) return;
+        try {
+            loading(true);
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "delete_data", data: { id, type } }) });
+            if(type==='trx') db_trx = db_trx.filter(x=>x.id!=id); else db_biaya = db_biaya.filter(x=>x.id!=id);
+            renderRiwayat(); renderBiaya(); updateDashboard();
+        } catch (e) { alert("Gagal!"); } finally { loading(false); }
+    }
+
+    async function editTrx(id, admLama, kgLama, hrgLama) {
+        const adm = prompt("Nama Admin:", admLama);
+        const kg = prompt("Berat:", kgLama);
+        const hrg = prompt("Harga:", hrgLama);
+        if(!adm || !kg || !hrg) return;
+        const item = { id, adm, kg:Number(kg), hrg:Number(hrg), total:Number(kg)*Number(hrg) };
+        try {
+            loading(true);
+            await fetch(API_URL, { method:'POST', body:JSON.stringify({action:"edit_trx", data:item})});
+            const i = db_trx.findIndex(x=>x.id==id); db_trx[i] = {...db_trx[i], ...item};
+            renderRiwayat(); updateDashboard();
+        } catch (e) { alert("Gagal!"); } finally { loading(false); }
+    }
+
+    async function editBiaya(id, ketLama, nomLama) {
+        const ket = prompt("Keterangan:", ketLama);
+        const nom = prompt("Nominal:", nomLama);
+        if(!ket || !nom) return;
+        try {
+            loading(true);
+            await fetch(API_URL, { method:'POST', body:JSON.stringify({action:"edit_biaya", data:{id, ket, nominal:Number(nom)}})});
+            const i = db_biaya.findIndex(b=>b.id==id); db_biaya[i].ket = ket; db_biaya[i].nominal = Number(nom);
+            renderBiaya(); updateDashboard();
+        } catch (e) { alert("Gagal!"); } finally { loading(false); }
     }
 
     function updateLaporan() {
         const d = document.getElementById('tgl-lap').value;
         const m = document.getElementById('bln-lap').value;
         if(d) {
-            const o = db_trx.filter(x => x.tgl.startsWith(d)).reduce((a,b)=>a+b.total,0);
-            const b = db_biaya.filter(x => x.tgl.startsWith(d)).reduce((a,b)=>a+b.nominal,0);
-            document.getElementById('res-harian').innerHTML = `Laba: Rp ${(o-b).toLocaleString()}`;
+            const t = d.split('-').reverse().join('/');
+            const o = db_trx.filter(x => x.tgl.startsWith(t)).reduce((a,b)=>a+(Number(b.total)||0),0);
+            const b = db_biaya.filter(x => x.tgl.startsWith(t)).reduce((a,b)=>a+(Number(b.nominal)||0),0);
+            document.getElementById('res-harian').innerHTML = `Masuk: Rp ${o.toLocaleString()}<br>Keluar: Rp ${b.toLocaleString()}<hr>LABA: Rp ${(o-b).toLocaleString()}`;
         }
         if(m) {
-            const oM = db_trx.filter(x => x.tgl.startsWith(m)).reduce((a,b)=>a+b.total,0);
-            const bM = db_biaya.filter(x => x.tgl.startsWith(m)).reduce((a,b)=>a+b.nominal,0);
-            document.getElementById('res-bulanan').innerHTML = `Laba: Rp ${(oM-bM).toLocaleString()}`;
+            const tM = m.split('-').reverse().join('/');
+            const oM = db_trx.filter(x => x.tgl.includes(tM)).reduce((a,b)=>a+(Number(b.total)||0),0);
+            const bM = db_biaya.filter(x => x.tgl.includes(tM)).reduce((a,b)=>a+(Number(b.nominal)||0),0);
+            document.getElementById('res-bulanan').innerHTML = `Masuk: Rp ${oM.toLocaleString()}<br>Keluar: Rp ${bM.toLocaleString()}<hr>LABA: Rp ${(oM-bM).toLocaleString()}`;
         }
     }
 
     function cetakLaporan(tipe) {
         const isi = (tipe === 'Harian') ? document.getElementById('res-harian').innerText : document.getElementById('res-bulanan').innerText;
-        buatPDF("Laporan_"+tipe, [`Laporan ${tipe}`, isi]);
+        if(isi.includes("Pilih")) return alert("Pilih data!");
+        const s = `   LAPORAN ${tipe.toUpperCase()}\n================================\n${isi}\n================================\n\n\n`;
+        window.location.href = "rawbt:base64," + btoa(s);
     }
 
     function exportExcel() {
@@ -236,23 +291,6 @@
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db_biaya), "Biaya");
         XLSX.writeFile(wb, "Backup_BUMDes.xlsx");
     }
-
-    function importExcel() {
-        const f = document.getElementById('file-import').files[0];
-        if(!f) return alert("Pilih file!");
-        const r = new FileReader();
-        r.onload = (e) => {
-            const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-            db_trx = XLSX.utils.sheet_to_json(wb.Sheets.Transaksi) || [];
-            db_biaya = XLSX.utils.sheet_to_json(wb.Sheets.Biaya) || [];
-            localStorage.setItem('db_final_v21_trx', JSON.stringify(db_trx));
-            localStorage.setItem('db_final_v21_biaya', JSON.stringify(db_biaya));
-            alert("Berhasil!"); location.reload();
-        };
-        r.readAsArrayBuffer(f);
-    }
-
-    function resetData() { if(confirm("Hapus semua?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
