@@ -100,8 +100,7 @@
 </nav>
 
 <script>
-    // GANTI URL INI DENGAN URL WEB APP ANDA YANG TERBARU
-    const API_URL = "https://script.google.com/macros/s/AKfycbx1k_4-qjxRiM_DIj33AAW2sboLEq2OzCeRGLwIxLc9C8S9x5V-B4lsS2tYX6bKzMLd/exec"; 
+   const API_URL = "https://script.google.com/macros/s/AKfycbx1k_4-qjxRiM_DIj33AAW2sboLEq2OzCeRGLwIxLc9C8S9x5V-B4lsS2tYX6bKzMLd/exec"; 
 
     let db_trx = [];
     let db_biaya = [];
@@ -139,67 +138,49 @@
         el.classList.add('active');
         if(s === 'riwayat') renderRiwayat();
         if(s === 'biaya') renderBiaya();
+        if(s === 'laporan') updateLaporan();
     }
 
     function hitung() {
-        const t = (Number(document.getElementById('berat').value) || 0) * (Number(document.getElementById('harga').value) || 0);
-        document.getElementById('total-display').innerText = "Rp " + t.toLocaleString();
+        const b = Number(document.getElementById('berat').value) || 0;
+        const h = Number(document.getElementById('harga').value) || 0;
+        const total = b * h;
+        document.getElementById('total-display').innerText = "Rp " + total.toLocaleString('id-ID');
     }
 
-function updateDashboard() {
-    // Ambil tanggal hari ini dalam format dd/mm/yyyy
-    const d = new Date();
-    const hari = String(d.getDate()).padStart(2, '0');
-    const bulan = String(d.getMonth() + 1).padStart(2, '0');
-    const tahun = d.getFullYear();
-    const tglHarian = `${hari}/${bulan}/${tahun}`;
+    function updateDashboard() {
+        const d = new Date();
+        const tglHarian = String(d.getDate()).padStart(2, '0') + "/" + String(d.getMonth() + 1).padStart(2, '0') + "/" + d.getFullYear();
 
-    // Filter Transaksi (Masuk)
-    const totalMasuk = db_trx
-        .filter(x => String(x.tgl).startsWith(tglHarian))
-        .reduce((a, b) => a + (Number(b.total) || 0), 0);
+        const totalMasuk = db_trx
+            .filter(x => String(x.tgl).startsWith(tglHarian))
+            .reduce((a, b) => a + (Number(b.total) || 0), 0);
 
-    // Filter Biaya (Keluar)
-    const totalKeluar = db_biaya
-        .filter(x => String(x.tgl).startsWith(tglHarian))
-        .reduce((a, b) => a + (Number(b.nominal) || 0), 0);
+        const totalKeluar = db_biaya
+            .filter(x => String(x.tgl).startsWith(tglHarian))
+            .reduce((a, b) => a + (Number(b.nominal) || 0), 0);
 
-    const saldoBersih = totalMasuk - totalKeluar;
-    document.getElementById('dash-saldo').innerText = "Rp " + saldoBersih.toLocaleString('id-ID');
-}
-
-function updateLaporan() {
-    const tglInput = document.getElementById('tgl-lap').value; // Format yyyy-mm-dd
-    const blnInput = document.getElementById('bln-lap').value; // Format yyyy-mm
-
-    // Laporan Harian
-    if (tglInput) {
-        const [y, m, d] = tglInput.split('-');
-        const tglTarget = `${d}/${m}/${y}`;
-        
-        const masuk = db_trx.filter(x => String(x.tgl).startsWith(tglTarget)).reduce((a, b) => a + Number(b.total), 0);
-        const keluar = db_biaya.filter(x => String(x.tgl).startsWith(tglTarget)).reduce((a, b) => a + Number(b.nominal), 0);
-        
-        document.getElementById('res-harian').innerHTML = `
-            Tgl: ${tglTarget}<br>
-            Masuk: Rp ${masuk.toLocaleString()}<br>
-            Keluar: Rp ${keluar.toLocaleString()}<hr>
-            LABA: Rp ${(masuk - keluar).toLocaleString()}`;
+        document.getElementById('dash-saldo').innerText = "Rp " + (totalMasuk - totalKeluar).toLocaleString('id-ID');
     }
 
-    // Laporan Bulanan
-    if (blnInput) {
-        const [y, m] = blnInput.split('-');
-        const blnTarget = `${m}/${y}`; // Mencari mm/yyyy
-        
-        const masukBln = db_trx.filter(x => String(x.tgl).includes(blnTarget)).reduce((a, b) => a + Number(b.total), 0);
-        const keluarBln = db_biaya.filter(x => String(x.tgl).includes(blnTarget)).reduce((a, b) => a + Number(b.nominal), 0);
-        
-        document.getElementById('res-bulanan').innerHTML = `
-            Bulan: ${blnTarget}<br>
-            Masuk: Rp ${masukBln.toLocaleString()}<br>
-            Keluar: Rp ${keluarBln.toLocaleString()}<hr>
-            LABA: Rp ${(masukBln - keluarBln).toLocaleString()}`;
+    function updateLaporan() {
+        const d = document.getElementById('tgl-lap').value;
+        const m = document.getElementById('bln-lap').value;
+
+        if (d) {
+            const [y, mm, dd] = d.split('-');
+            const t = `${dd}/${mm}/${y}`;
+            const o = db_trx.filter(x => String(x.tgl).startsWith(t)).reduce((a, b) => a + (Number(b.total) || 0), 0);
+            const b = db_biaya.filter(x => String(x.tgl).startsWith(t)).reduce((a, b) => a + (Number(b.nominal) || 0), 0);
+            document.getElementById('res-harian').innerHTML = `Masuk: Rp ${o.toLocaleString()}<br>Keluar: Rp ${b.toLocaleString()}<hr>LABA: Rp ${(o - b).toLocaleString()}`;
+        }
+        if (m) {
+            const [y, mm] = m.split('-');
+            const target = `${mm}/${y}`;
+            const oM = db_trx.filter(x => String(x.tgl).includes(target)).reduce((a, b) => a + (Number(b.total) || 0), 0);
+            const bM = db_biaya.filter(x => String(x.tgl).includes(target)).reduce((a, b) => a + (Number(b.nominal) || 0), 0);
+            document.getElementById('res-bulanan').innerHTML = `Masuk: Rp ${oM.toLocaleString()}<br>Keluar: Rp ${bM.toLocaleString()}<hr>LABA: Rp ${(oM - bM).toLocaleString()}`;
+        }
     }
 
     function cetakRawBT(item) {
@@ -217,9 +198,10 @@ function updateLaporan() {
             loading(true);
             const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "add_trx", data: item }) });
             if(res.ok) {
-                db_trx.push({...item, tgl: new Date().toLocaleDateString('id-ID')});
+                db_trx.push({...item, tgl: new Date().toLocaleDateString('id-ID', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/-/g,'/')});
                 cetakRawBT(item);
                 document.getElementById('berat').value = ""; hitung(); updateDashboard();
+                alert("Berhasil Simpan!");
             }
         } catch (e) { alert("Gagal Simpan!"); } finally { loading(false); }
     }
@@ -233,9 +215,10 @@ function updateLaporan() {
             loading(true);
             const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "add_biaya", data: item }) });
             if(res.ok) {
-                db_biaya.push({...item, tgl: new Date().toLocaleDateString('id-ID')});
+                db_biaya.push({...item, tgl: new Date().toLocaleDateString('id-ID', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/-/g,'/')});
                 document.getElementById('ket-biaya').value = ""; document.getElementById('nom-biaya').value = "";
                 renderBiaya(); updateDashboard();
+                alert("Biaya Tersimpan!");
             }
         } catch (e) { alert("Gagal!"); } finally { loading(false); }
     }
@@ -244,7 +227,7 @@ function updateLaporan() {
         document.getElementById('list-biaya-full').innerHTML = db_biaya.slice().reverse().map(b => `
             <div class="app-card border-end border-danger border-4 py-2">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div><b>${b.ket}</b><br><small class="text-muted">${b.tgl.slice(0,10)}</small></div>
+                    <div><b>${b.ket}</b><br><small class="text-muted">${b.tgl}</small></div>
                     <div class="text-end">
                         <b class="text-danger">Rp ${Number(b.nominal).toLocaleString()}</b><br>
                         <button onclick="editBiaya(${b.id},'${b.ket}',${b.nominal})" class="btn btn-link btn-sm p-0 me-2">Edit</button>
@@ -260,11 +243,11 @@ function updateLaporan() {
             <thead class="table-dark"><tr><th>Tgl/Adm</th><th>Detail</th><th>Aksi</th></tr></thead>
             <tbody>${data.map(x => `
                 <tr>
-                    <td><small>${x.tgl.slice(0,10)}</small><br><b>${x.adm}</b></td>
-                    <td>${x.kg}kg<br><b class="text-primary">Rp${x.total.toLocaleString()}</b></td>
+                    <td><small>${x.tgl}</small><br><b>${x.adm}</b></td>
+                    <td>${x.kg}kg<br><b class="text-primary">Rp${Number(x.total).toLocaleString()}</b></td>
                     <td>
                         <div class="d-flex gap-1">
-                            <button onclick="cetakRawBT(${JSON.stringify(x).replace(/"/g, '&quot;')})" class="btn btn-dark btn-sm">🖨️</button>
+                            <button onclick='cetakRawBT(${JSON.stringify(x)})' class="btn btn-dark btn-sm">🖨️</button>
                             <button onclick="editTrx(${x.id},'${x.adm}',${x.kg},${x.hrg})" class="btn btn-primary btn-sm">✏️</button>
                             <button onclick="hapusData(${x.id},'trx')" class="btn btn-danger btn-sm">🗑️</button>
                         </div>
@@ -298,42 +281,17 @@ function updateLaporan() {
         } catch (e) { alert("Gagal!"); } finally { loading(false); }
     }
 
-  async function editBiaya(id, ketLama, nomLama) {
-    const ket = prompt("Ubah Keterangan:", ketLama);
-    const nom = prompt("Ubah Nominal:", nomLama);
-    if (!ket || !nom) return;
-
-    try {
-        loading(true);
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: "edit_biaya", data: { id, ket, nominal: Number(nom) } })
-        });
-        if(res.ok) {
+    async function editBiaya(id, ketLama, nomLama) {
+        const ket = prompt("Ubah Keterangan:", ketLama);
+        const nom = prompt("Ubah Nominal:", nomLama);
+        if (!ket || !nom) return;
+        try {
+            loading(true);
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "edit_biaya", data: { id, ket, nominal: Number(nom) } }) });
             const i = db_biaya.findIndex(b => b.id == id);
-            db_biaya[i].ket = ket;
-            db_biaya[i].nominal = Number(nom);
-            renderBiaya();
-            updateDashboard();
-        }
-    } catch (e) { alert("Gagal Edit!"); } finally { loading(false); }
-    }
-
-    function updateLaporan() {
-        const d = document.getElementById('tgl-lap').value;
-        const m = document.getElementById('bln-lap').value;
-        if(d) {
-            const t = d.split('-').reverse().join('/');
-            const o = db_trx.filter(x => x.tgl.startsWith(t)).reduce((a,b)=>a+(Number(b.total)||0),0);
-            const b = db_biaya.filter(x => x.tgl.startsWith(t)).reduce((a,b)=>a+(Number(b.nominal)||0),0);
-            document.getElementById('res-harian').innerHTML = `Masuk: Rp ${o.toLocaleString()}<br>Keluar: Rp ${b.toLocaleString()}<hr>LABA: Rp ${(o-b).toLocaleString()}`;
-        }
-        if(m) {
-            const tM = m.split('-').reverse().join('/');
-            const oM = db_trx.filter(x => x.tgl.includes(tM)).reduce((a,b)=>a+(Number(b.total)||0),0);
-            const bM = db_biaya.filter(x => x.tgl.includes(tM)).reduce((a,b)=>a+(Number(b.nominal)||0),0);
-            document.getElementById('res-bulanan').innerHTML = `Masuk: Rp ${oM.toLocaleString()}<br>Keluar: Rp ${bM.toLocaleString()}<hr>LABA: Rp ${(oM-bM).toLocaleString()}`;
-        }
+            db_biaya[i].ket = ket; db_biaya[i].nominal = Number(nom);
+            renderBiaya(); updateDashboard();
+        } catch (e) { alert("Gagal Edit!"); } finally { loading(false); }
     }
 
     function cetakLaporan(tipe) {
