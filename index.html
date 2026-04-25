@@ -147,22 +147,32 @@
     }
 
 function updateDashboard() {
-    // 1. Ambil tanggal hari ini dalam format dd/mm/yyyy (Pastikan 2 digit)
     const d = new Date();
-    const tglHarian = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+    // Gunakan format YYYY-MM-DD agar konsisten untuk perbandingan
+    const tahun = d.getFullYear();
+    const bulan = ("0" + (d.getMonth() + 1)).slice(-2);
+    const hari = ("0" + d.getDate()).slice(-2);
+    const tglCari = `${hari}/${bulan}/${tahun}`;
 
-    // 2. Filter dengan startsWith agar jam di belakang tidak mengganggu
     const totalMasuk = db_trx
-        .filter(x => x.tgl && x.tgl.startsWith(tglHarian))
+        .filter(x => {
+            if (!x.tgl) return false;
+            // Ambil 10 karakter pertama (dd/mm/yyyy) untuk menghindari gangguan jam/menit
+            const tglData = x.tgl.substring(0, 10);
+            return tglData === tglCari;
+        })
         .reduce((a, b) => a + (Number(b.total) || 0), 0);
 
     const totalKeluar = db_biaya
-        .filter(x => x.tgl && x.tgl.startsWith(tglHarian))
+        .filter(x => {
+            if (!x.tgl) return false;
+            const tglData = x.tgl.substring(0, 10);
+            return tglData === tglCari;
+        })
         .reduce((a, b) => a + (Number(b.nominal) || 0), 0);
 
-    // 3. Tampilkan hasil
-    document.getElementById('dash-saldo').innerText = "Rp " + (totalMasuk - totalKeluar).toLocaleString();
-    }
+    document.getElementById('dash-saldo').innerText = "Rp " + (totalMasuk - totalKeluar).toLocaleString('id-ID');
+}
 
     function cetakRawBT(item) {
         let s = "   BUMDes NGABEHI BERKAH\n================================\nTgl  : " + (item.tgl || "-") + "\nAdm  : " + item.adm + "\n--------------------------------\nBERAT  : " + item.kg + " Kg\nHARGA  : Rp " + item.hrg.toLocaleString() + "\nTOTAL  : Rp " + item.total.toLocaleString() + "\n================================\n       TERIMA KASIH\n\n\n";
@@ -187,19 +197,28 @@ function updateDashboard() {
     }
 
     async function simpanBiaya() {
-        const ket = document.getElementById('ket-biaya').value;
-        const nom = Number(document.getElementById('nom-biaya').value);
-        if(!nom) return alert("Isi nominal!");
-        const item = { id: Date.now(), ket, nominal: nom };
-        try {
-            loading(true);
-            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "add_biaya", data: item }) });
-            if(res.ok) {
-                db_biaya.push({...item, tgl: new Date().toLocaleDateString('id-ID')});
-                document.getElementById('ket-biaya').value = ""; document.getElementById('nom-biaya').value = "";
-                renderBiaya(); updateDashboard();
-            }
-        } catch (e) { alert("Gagal!"); } finally { loading(false); }
+    const ket = document.getElementById('ket-biaya').value;
+    const nom = Number(document.getElementById('nom-biaya').value);
+    if(!nom) return alert("Isi nominal!");
+    
+    const item = { id: Date.now(), ket, nominal: nom };
+
+    try {
+        loading(true);
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "add_biaya", data: item }) });
+        if(res.ok) {
+            // --- MODIFIKASI DI SINI ---
+            const tglSekarang = ("0" + new Date().getDate()).slice(-2) + "/" + ("0" + (new Date().getMonth() + 1)).slice(-2) + "/" + new Date().getFullYear();
+            db_biaya.push({...item, tgl: tglSekarang});
+            // ---------------------------
+            
+            document.getElementById('ket-biaya').value = ""; 
+            document.getElementById('nom-biaya').value = "";
+            renderBiaya(); 
+            updateDashboard(); // Saldo akan langsung terupdate otomatis
+        }
+    } catch (e) { alert("Gagal!"); } finally { loading(false); }
+}
     }
 
     function renderBiaya() {
