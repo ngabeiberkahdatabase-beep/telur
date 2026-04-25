@@ -5,7 +5,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-    .nav-active { color: #2563eb; border-top: 3px solid #2563eb; }
+    .nav-active { color: #2563eb !important; border-top: 3px solid #2563eb; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
   </style>
@@ -13,9 +13,14 @@
 <body class="pb-24">
 
   <div class="bg-blue-600 p-6 text-white rounded-b-3xl shadow-lg mb-6">
-    <h1 class="text-xs opacity-80 uppercase tracking-widest">BUMDes Ngabei Berkah</h1>
-    <p class="text-sm">Saldo Bersih Hari Ini</p>
-    <h2 id="display-saldo" class="text-3xl font-bold mt-1">Rp 0</h2>
+    <h1 class="text-xs opacity-80 uppercase tracking-widest text-center font-bold">BUMDes Ngabei Berkah</h1>
+    <div class="flex justify-between items-end mt-4">
+      <div>
+        <p class="text-xs opacity-80">Saldo Bersih Hari Ini</p>
+        <h2 id="display-saldo" class="text-2xl font-bold">Rp 0</h2>
+      </div>
+      <button onclick="refreshData()" class="bg-blue-500 p-2 rounded-full text-xs">Refresh</button>
+    </div>
   </div>
 
   <div class="container mx-auto px-4">
@@ -24,26 +29,25 @@
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <h3 class="font-semibold mb-4 text-gray-700">Entri Penjualan</h3>
         <div class="space-y-4">
-          <input type="text" id="petugas" placeholder="Nama Petugas" class="w-full p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200">
+          <input type="text" id="petugas" placeholder="Nama Petugas" class="w-full p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200 focus:ring-blue-500">
           <div class="flex gap-2">
-            <input type="number" id="kg" placeholder="Berat (Kg)" class="w-1/2 p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200">
-            <input type="number" id="harga" placeholder="Harga/Kg" class="w-1/2 p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200">
+            <input type="number" id="kg" oninput="updateTotal()" placeholder="Berat (Kg)" class="w-1/2 p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200">
+            <input type="number" id="harga" oninput="updateTotal()" placeholder="Harga/Kg" class="w-1/2 p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200">
           </div>
           <div class="p-4 bg-blue-50 rounded-xl">
             <p class="text-xs text-blue-600">Total Bayar</p>
             <p id="total-view" class="text-xl font-bold text-blue-800">Rp 0</p>
           </div>
-          <button onclick="prosesTransaksi()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-md active:scale-95 transition-all">SAVE & PRINT</button>
+          <button onclick="prosesTransaksi()" id="btn-save" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-md active:scale-95 transition-all">SAVE & PRINT</button>
         </div>
       </div>
     </div>
 
     <div id="biaya" class="tab-content">
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h3 class="font-semibold mb-4 text-gray-700">Input Biaya Operasional</h3>
+        <h3 class="font-semibold mb-4 text-gray-700 font-bold uppercase text-xs">Biaya Pengeluaran</h3>
         <div class="space-y-3">
-          <input type="date" id="tgl-biaya" class="w-full p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200">
-          <input type="text" id="ket-biaya" placeholder="Keterangan" class="w-full p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200">
+          <input type="text" id="ket-biaya" placeholder="Keterangan Biaya" class="w-full p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200">
           <input type="number" id="nom-biaya" placeholder="Nominal (Rp)" class="w-full p-3 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200">
           <button onclick="simpanBiaya()" class="w-full bg-red-500 text-white font-semibold py-3 rounded-xl">Simpan Biaya</button>
         </div>
@@ -51,35 +55,59 @@
     </div>
 
     <div id="riwayat" class="tab-content">
-       <div id="list-riwayat" class="space-y-2 text-sm">Loading...</div>
+      <h3 class="font-semibold mb-4 text-gray-700">Riwayat Transaksi</h3>
+      <div id="list-riwayat" class="space-y-2"></div>
     </div>
+
+    <div id="laporan" class="tab-content">
+      <div class="bg-white p-4 rounded-xl shadow-sm">
+        <h3 class="font-semibold mb-4 text-gray-700">Laporan Bulanan</h3>
+        <input type="month" id="pilih-bulan" class="w-full p-2 border rounded-lg mb-4">
+        <button onclick="generateLaporan()" class="w-full bg-green-600 text-white p-2 rounded-lg mb-2">Lihat Laporan</button>
+        <div id="hasil-laporan" class="text-sm mt-4 p-2 bg-gray-50 rounded"></div>
+      </div>
+    </div>
+
+    <div id="setting" class="tab-content text-center">
+      <div class="bg-white p-6 rounded-2xl shadow-sm space-y-4">
+        <button onclick="exportExcel()" class="w-full bg-gray-700 text-white py-3 rounded-xl">Back Up Excel</button>
+        <button onclick="resetData()" class="w-full bg-orange-500 text-white py-3 rounded-xl">Reset (Hapus Semua)</button>
+      </div>
+    </div>
+
   </div>
 
   <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around py-3 text-gray-400">
-    <button onclick="openTab('kasir', this)" class="nav-active flex flex-col items-center">
+    <button onclick="openTab('kasir', this)" class="nav-active flex flex-col items-center flex-1">
       <span class="text-[10px]">KASIR</span>
     </button>
-    <button onclick="openTab('biaya', this)" class="flex flex-col items-center">
+    <button onclick="openTab('biaya', this)" class="flex flex-col items-center flex-1">
       <span class="text-[10px]">BIAYA</span>
     </button>
-    <button onclick="openTab('riwayat', this)" class="flex flex-col items-center">
+    <button onclick="openTab('riwayat', this)" class="flex flex-col items-center flex-1">
       <span class="text-[10px]">RIWAYAT</span>
     </button>
-    <button onclick="openTab('laporan', this)" class="flex flex-col items-center">
+    <button onclick="openTab('laporan', this)" class="flex flex-col items-center flex-1">
       <span class="text-[10px]">LAPORAN</span>
     </button>
-    <button onclick="openTab('setting', this)" class="flex flex-col items-center">
+    <button onclick="openTab('setting', this)" class="flex flex-col items-center flex-1">
       <span class="text-[10px]">SETTING</span>
     </button>
   </div>
 
   <script>
-    // Sinkronisasi Real-time Sederhana
     window.onload = refreshData;
+
+    function updateTotal() {
+      const kg = document.getElementById('kg').value || 0;
+      const hrg = document.getElementById('harga').value || 0;
+      const total = kg * hrg;
+      document.getElementById('total-view').innerText = "Rp " + total.toLocaleString('id-ID');
+    }
 
     function refreshData() {
       google.script.run.withSuccessHandler(data => {
-        document.getElementById('display-saldo').innerText = "Rp " + data.saldo.toLocaleString();
+        document.getElementById('display-saldo').innerText = "Rp " + data.saldo.toLocaleString('id-ID');
       }).getDashboardData();
     }
 
@@ -88,6 +116,7 @@
       document.querySelectorAll('button').forEach(b => b.classList.remove('nav-active'));
       document.getElementById(tabName).classList.add('active');
       el.classList.add('nav-active');
+      if(tabName === 'riwayat') loadHistory();
       refreshData();
     }
 
@@ -96,22 +125,52 @@
       const kg = document.getElementById('kg').value;
       const hrg = document.getElementById('harga').value;
       const tot = kg * hrg;
-      const tgl = new Date().toISOString();
+      const tgl = new Date().toLocaleString('id-ID');
 
+      if(!pet || !kg || !hrg) return alert("Lengkapi data!");
+
+      document.getElementById('btn-save').innerText = "MENYIMPAN...";
+      
       google.script.run.withSuccessHandler(() => {
-        // Integrasi RawBT
-        const printUrl = `rawbt:data/text,BUMDes Ngabei Berkah\n----------------\nPetugas: ${pet}\n${kg}kg x ${hrg}\nTotal: ${tot}\n----------------\nTerima Kasih`;
+        // RawBT Print
+        const printUrl = `rawbt:data/text,BUMDes Ngabei Berkah\n----------------\nPetugas: ${pet}\nBerat  : ${kg} kg\nHarga  : ${hrg}\nTotal  : ${tot}\n----------------\n${tgl}\nSuksess!`;
         window.location.href = printUrl;
         
-        // Reset Form
+        // Reset Form sesuai permintaan
         document.getElementById('petugas').value = "";
         document.getElementById('kg').value = "";
         document.getElementById('harga').value = "";
+        document.getElementById('total-view').innerText = "Rp 0";
+        document.getElementById('btn-save').innerText = "SAVE & PRINT";
         refreshData();
-      }).saveData('transaksi', [tgl, pet, kg, hrg, tot]);
+      }).saveData('transaksi', [new Date(), pet, kg, hrg, tot]);
     }
-    
-    // Fungsi biaya, riwayat, dll ditambahkan dengan pola yang sama
+
+    function simpanBiaya() {
+      const ket = document.getElementById('ket-biaya').value;
+      const nom = document.getElementById('nom-biaya').value;
+      if(!ket || !nom) return alert("Lengkapi data!");
+
+      google.script.run.withSuccessHandler(() => {
+        alert("Biaya Tersimpan");
+        document.getElementById('ket-biaya').value = "";
+        document.getElementById('nom-biaya').value = "";
+        refreshData();
+      }).saveData('biaya', [new Date(), ket, nom]);
+    }
+
+    function loadHistory() {
+      google.script.run.withSuccessHandler(data => {
+        let html = '';
+        data.slice(1).reverse().forEach(r => {
+          html += `<div class="bg-white p-3 rounded-lg shadow-sm border-l-4 border-blue-500 mb-2">
+            <div class="flex justify-between font-bold"><span>${r[1]}</span><span>Rp ${Number(r[4]).toLocaleString()}</span></div>
+            <div class="text-[10px] text-gray-400">${new Date(r[0]).toLocaleDateString()} | ${r[2]}kg @${r[3]}</div>
+          </div>`;
+        });
+        document.getElementById('list-riwayat').innerHTML = html;
+      }).getHistory();
+    }
   </script>
 </body>
 </html>
