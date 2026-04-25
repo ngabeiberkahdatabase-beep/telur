@@ -1,131 +1,103 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
-    .nav-active { color: #2563eb; font-weight: bold; }
-    .nav-active svg { fill: #2563eb; }
-    .tab-content { display: none; min-height: 80vh; }
-    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    input { font-size: 16px !important; } /* Mencegah auto-zoom di iOS */
+    body { font-family: sans-serif; background-color: #f8fafc; padding-bottom: 100px; }
+    .tab-content { display: none; }
+    .active { display: block; }
+    .nav-active { color: #2563eb; font-weight: bold; border-top: 4px solid #2563eb; }
+    input { font-size: 16px !important; }
   </style>
 </head>
-<body class="pb-24">
+<body>
 
-  <div class="fixed top-0 w-full bg-blue-700 text-white p-5 shadow-lg z-50 rounded-b-2xl">
+  <div class="fixed top-0 w-full bg-blue-600 text-white p-6 shadow-lg z-50 rounded-b-3xl">
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-xs opacity-75 uppercase font-bold tracking-tighter">BUMDes Ngabei Berkah</h1>
-        <p class="text-[10px]">Saldo Bersih Hari Ini:</p>
-        <h2 id="disp-saldo" class="text-2xl font-black mt-1">Rp 0</h2>
+        <p class="text-[10px] uppercase font-bold opacity-70">BUMDes Ngabei Berkah</p>
+        <h2 id="disp-saldo" class="text-3xl font-black">Rp 0</h2>
       </div>
-      <button onclick="refreshDashboard()" class="bg-blue-600 p-2 rounded-lg active:bg-blue-800">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-      </button>
+      <button onclick="refreshData()" class="bg-blue-500 p-2 rounded-full">🔄</button>
     </div>
   </div>
 
   <div class="container mx-auto px-4 mt-32">
     
     <div id="tab-kasir" class="tab-content active">
-      <div class="bg-white p-6 rounded-3xl shadow-md border border-gray-100">
-        <h3 class="text-blue-700 font-black mb-5 text-center uppercase tracking-widest">Kasir Penjualan</h3>
-        <div class="space-y-4">
-          <div>
-            <label class="text-[10px] font-bold text-gray-400 ml-2">NAMA PETUGAS</label>
-            <input type="text" id="petugas" placeholder="..." class="w-full p-4 bg-gray-50 rounded-2xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div class="flex gap-3">
-            <div class="w-1/2">
-              <label class="text-[10px] font-bold text-gray-400 ml-2">BERAT (KG)</label>
-              <input type="number" id="kg" oninput="hitung()" placeholder="0" class="w-full p-4 bg-gray-50 rounded-2xl border-none ring-1 ring-gray-200 outline-none">
-            </div>
-            <div class="w-1/2">
-              <label class="text-[10px] font-bold text-gray-400 ml-2">HARGA (RP)</label>
-              <input type="number" id="harga" oninput="hitung()" placeholder="0" class="w-full p-4 bg-gray-50 rounded-2xl border-none ring-1 ring-gray-200 outline-none">
-            </div>
-          </div>
-          <div class="p-5 bg-blue-50 rounded-2xl border-2 border-dashed border-blue-200 text-center">
-            <p class="text-[10px] text-blue-500 font-bold uppercase">Total yang harus dibayar</p>
-            <h3 id="total-text" class="text-3xl font-black text-blue-800">Rp 0</h3>
-          </div>
-          <button onclick="simpanTrx()" id="btn-save" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl active:bg-blue-800 transition-all uppercase tracking-widest">Save & Print</button>
+      <div class="bg-white p-6 rounded-3xl shadow-md border border-gray-100 space-y-4">
+        <input type="text" id="petugas" placeholder="Nama Petugas" class="w-full p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-100 outline-none">
+        <div class="flex gap-2">
+          <input type="number" id="kg" oninput="hitung()" placeholder="Kg" class="w-1/2 p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-200 outline-none">
+          <input type="number" id="harga" oninput="hitung()" placeholder="Harga" class="w-1/2 p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-200 outline-none">
         </div>
+        <div class="p-4 bg-blue-50 rounded-2xl text-center border-2 border-dashed border-blue-200">
+          <p class="text-xs text-blue-500">Total Bayar</p>
+          <h3 id="total-text" class="text-2xl font-black text-blue-800">Rp 0</h3>
+        </div>
+        <button onclick="simpanTrx()" id="btn-save" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl uppercase tracking-widest">SAVE & PRINT</button>
       </div>
     </div>
 
     <div id="tab-biaya" class="tab-content">
-      <div class="bg-white p-6 rounded-3xl shadow-md border border-gray-100">
-        <h3 class="text-red-600 font-black mb-5 text-center uppercase tracking-widest">Input Biaya</h3>
-        <div class="space-y-4">
-          <input type="text" id="ket-biaya" placeholder="Keterangan (Contoh: Pakan)" class="w-full p-4 bg-gray-50 rounded-2xl border-none ring-1 ring-gray-200 outline-none">
-          <input type="number" id="nom-biaya" placeholder="Nominal (Rp)" class="w-full p-4 bg-gray-50 rounded-2xl border-none ring-1 ring-gray-200 outline-none">
-          <button onclick="simpanBiaya()" id="btn-biaya" class="w-full bg-red-600 text-white font-black py-5 rounded-2xl shadow-xl active:bg-red-800 uppercase">Simpan Biaya</button>
-        </div>
+      <div class="bg-white p-6 rounded-3xl shadow-md space-y-4">
+        <h3 class="font-bold text-red-600 border-b pb-2">INPUT BIAYA</h3>
+        <input type="text" id="ket-biaya" placeholder="Keterangan" class="w-full p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-100">
+        <input type="number" id="nom-biaya" placeholder="Nominal Rp" class="w-full p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-100">
+        <button onclick="simpanBiaya()" id="btn-biaya" class="w-full bg-red-500 text-white font-black py-4 rounded-2xl shadow-lg uppercase">Simpan Biaya</button>
       </div>
     </div>
 
-    <div id="tab-riwayat" class="tab-content">
-      <h3 class="font-black text-gray-700 mb-4 ml-2 uppercase">Transaksi Terakhir</h3>
-      <div id="list-riwayat" class="space-y-3">
-        <p class="text-center text-gray-400 py-10">Memuat data...</p>
+    <div id="tab-laporan" class="tab-content">
+      <div class="bg-white p-6 rounded-3xl shadow-md space-y-4">
+        <h3 class="font-bold text-gray-700 uppercase">Laporan Bulanan</h3>
+        <input type="month" id="filter-bulan" class="w-full p-3 border rounded-xl">
+        <button onclick="tampilLaporan()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Tampilkan Laporan</button>
+        <div id="hasil-laporan" class="mt-4 space-y-2 text-sm"></div>
       </div>
     </div>
 
+    <div id="tab-setting" class="tab-content">
+      <div class="bg-white p-6 rounded-3xl shadow-md space-y-4">
+        <h3 class="font-bold text-gray-700 uppercase">Pengaturan</h3>
+        <button onclick="exportExcel()" class="w-full bg-gray-700 text-white py-4 rounded-2xl font-bold">BACK UP EXCEL</button>
+        <button onclick="resetData()" class="w-full bg-orange-500 text-white py-4 rounded-2xl font-bold">RESET SEMUA DATA</button>
+      </div>
+    </div>
   </div>
 
-  <div class="fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around py-4 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-50">
-    <button onclick="showTab('tab-kasir', this)" class="nav-active flex flex-col items-center flex-1">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 9.5h20"/></svg>
-      <span class="text-[10px] mt-1">KASIR</span>
-    </button>
-    <button onclick="showTab('tab-biaya', this)" class="flex flex-col items-center flex-1 text-gray-400">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      <span class="text-[10px] mt-1 text-gray-400">BIAYA</span>
-    </button>
-    <button onclick="showTab('tab-riwayat', this)" class="flex flex-col items-center flex-1 text-gray-400">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      <span class="text-[10px] mt-1 text-gray-400">RIWAYAT</span>
-    </button>
+  <div class="fixed bottom-0 w-full bg-white border-t flex justify-around py-3 shadow-inner z-50">
+    <button onclick="nav('tab-kasir', this)" class="nav-active flex-1 text-[9px] font-bold">KASIR</button>
+    <button onclick="nav('tab-biaya', this)" class="flex-1 text-[9px] font-bold text-gray-400">BIAYA</button>
+    <button onclick="nav('tab-laporan', this)" class="flex-1 text-[9px] font-bold text-gray-400">LAPORAN</button>
+    <button onclick="nav('tab-setting', this)" class="flex-1 text-[9px] font-bold text-gray-400">SETTING</button>
   </div>
 
   <script>
-    // Kalkulasi Real-time
     function hitung() {
       const kg = parseFloat(document.getElementById('kg').value) || 0;
       const hrg = parseFloat(document.getElementById('harga').value) || 0;
-      const total = kg * hrg;
-      document.getElementById('total-text').innerText = "Rp " + total.toLocaleString('id-ID');
+      document.getElementById('total-text').innerText = "Rp " + (kg * hrg).toLocaleString('id-ID');
     }
 
-    // Navigasi Tab
-    function showTab(tabId, el) {
+    function nav(id, el) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('button').forEach(b => {
-        b.classList.remove('nav-active');
-        if(b.querySelector('span')) b.querySelector('span').classList.add('text-gray-400');
-      });
-      
-      document.getElementById(tabId).classList.add('active');
+      document.querySelectorAll('button').forEach(b => b.classList.remove('nav-active'));
+      document.getElementById(id).classList.add('active');
       el.classList.add('nav-active');
-      el.querySelector('span').classList.remove('text-gray-400');
-      
-      if(tabId === 'tab-riwayat') loadHistory();
-      refreshDashboard();
+      refreshData();
     }
 
-    // Simpan Kasir
     function simpanTrx() {
       const p = document.getElementById('petugas').value;
       const k = document.getElementById('kg').value;
       const h = document.getElementById('harga').value;
       const t = k * h;
-      if(!p || !k || !h) return alert("Data belum lengkap!");
+      if(!p || !k || !h) return alert("Lengkapi data!");
 
+      // Respon Instan agar tidak terasa lama
       const btn = document.getElementById('btn-save');
       btn.innerText = "MENYIMPAN...";
       btn.disabled = true;
@@ -137,38 +109,40 @@
         document.getElementById('total-text').innerText = "Rp 0";
         btn.innerText = "SAVE & PRINT";
         btn.disabled = false;
-        refreshDashboard();
+        refreshData();
       }).saveData('transaksi', [new Date(), p, k, h, t]);
     }
 
-    // Ambil Data Dashboard
-    function refreshDashboard() {
+    function simpanBiaya() {
+      const ket = document.getElementById('ket-biaya').value;
+      const nom = document.getElementById('nom-biaya').value;
+      if(!ket || !nom) return alert("Lengkapi data!");
+
+      google.script.run.withSuccessHandler(() => {
+        alert("Biaya Tersimpan!");
+        document.getElementById('ket-biaya').value = "";
+        document.getElementById('nom-biaya').value = "";
+        refreshData();
+      }).saveData('biaya', [new Date(), ket, nom]);
+    }
+
+    function refreshData() {
       google.script.run.withSuccessHandler(res => {
         document.getElementById('disp-saldo').innerText = "Rp " + res.saldo.toLocaleString('id-ID');
       }).getDashboardData();
     }
 
-    // Load Riwayat
-    function loadHistory() {
-      google.script.run.withSuccessHandler(data => {
-        let html = '';
-        data.slice(1).reverse().slice(0,10).forEach(r => {
-          html += `<div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border-l-4 border-blue-600">
-            <div>
-              <p class="font-black text-gray-800">${r[1]}</p>
-              <p class="text-[10px] text-gray-400 uppercase">${new Date(r[0]).toLocaleDateString('id-ID')}</p>
-            </div>
-            <div class="text-right">
-              <p class="font-black text-blue-700">Rp ${Number(r[4]).toLocaleString('id-ID')}</p>
-              <p class="text-[10px] text-gray-400">${r[2]}kg x ${r[3]}</p>
-            </div>
-          </div>`;
-        });
-        document.getElementById('list-riwayat').innerHTML = html || '<p class="text-center py-10">Belum ada data hari ini</p>';
-      }).getHistory();
+    function exportExcel() {
+       window.open('https://docs.google.com/spreadsheets/d/' + google.script.host.origin + '/export?format=xlsx');
     }
 
-    window.onload = refreshDashboard;
+    function resetData() {
+      if(confirm("Hapus semua data transaksi & biaya?")) {
+        google.script.run.withSuccessHandler(msg => { alert(msg); refreshData(); }).resetAllData();
+      }
+    }
+
+    window.onload = refreshData;
   </script>
 </body>
 </html>
