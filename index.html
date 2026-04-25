@@ -146,11 +146,22 @@
         document.getElementById('total-display').innerText = "Rp " + t.toLocaleString();
     }
 
-    function updateDashboard() {
-        const hariIni = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric'});
-        const totalMasuk = db_trx.filter(x => x.tgl && x.tgl.startsWith(hariIni)).reduce((a, b) => a + (Number(b.total) || 0), 0);
-        const totalKeluar = db_biaya.filter(x => x.tgl && x.tgl.startsWith(hariIni)).reduce((a, b) => a + (Number(b.nominal) || 0), 0);
-        document.getElementById('dash-saldo').innerText = "Rp " + (totalMasuk - totalKeluar).toLocaleString();
+function updateDashboard() {
+    // 1. Ambil tanggal hari ini dalam format dd/mm/yyyy (Pastikan 2 digit)
+    const d = new Date();
+    const tglHarian = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+
+    // 2. Filter dengan startsWith agar jam di belakang tidak mengganggu
+    const totalMasuk = db_trx
+        .filter(x => x.tgl && x.tgl.startsWith(tglHarian))
+        .reduce((a, b) => a + (Number(b.total) || 0), 0);
+
+    const totalKeluar = db_biaya
+        .filter(x => x.tgl && x.tgl.startsWith(tglHarian))
+        .reduce((a, b) => a + (Number(b.nominal) || 0), 0);
+
+    // 3. Tampilkan hasil
+    document.getElementById('dash-saldo').innerText = "Rp " + (totalMasuk - totalKeluar).toLocaleString();
     }
 
     function cetakRawBT(item) {
@@ -249,16 +260,25 @@
         } catch (e) { alert("Gagal!"); } finally { loading(false); }
     }
 
-    async function editBiaya(id, ketLama, nomLama) {
-        const ket = prompt("Keterangan:", ketLama);
-        const nom = prompt("Nominal:", nomLama);
-        if(!ket || !nom) return;
-        try {
-            loading(true);
-            await fetch(API_URL, { method:'POST', body:JSON.stringify({action:"edit_biaya", data:{id, ket, nominal:Number(nom)}})});
-            const i = db_biaya.findIndex(b=>b.id==id); db_biaya[i].ket = ket; db_biaya[i].nominal = Number(nom);
-            renderBiaya(); updateDashboard();
-        } catch (e) { alert("Gagal!"); } finally { loading(false); }
+  async function editBiaya(id, ketLama, nomLama) {
+    const ket = prompt("Ubah Keterangan:", ketLama);
+    const nom = prompt("Ubah Nominal:", nomLama);
+    if (!ket || !nom) return;
+
+    try {
+        loading(true);
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "edit_biaya", data: { id, ket, nominal: Number(nom) } })
+        });
+        if(res.ok) {
+            const i = db_biaya.findIndex(b => b.id == id);
+            db_biaya[i].ket = ket;
+            db_biaya[i].nominal = Number(nom);
+            renderBiaya();
+            updateDashboard();
+        }
+    } catch (e) { alert("Gagal Edit!"); } finally { loading(false); }
     }
 
     function updateLaporan() {
