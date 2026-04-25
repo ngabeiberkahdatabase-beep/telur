@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BUMDes MANDIRI - PDF Version</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { background-color: #f8fafc; padding-bottom: 90px; }
+        .app-card { background: white; border-radius: 12px; padding: 15px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .tab { display: none; }
+        .tab.active { display: block; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; border-top: 1px solid #e2e8f0; height: 75px; z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #64748b; border: none; background: none; }
+        .nav-item.active { color: #2563eb; }
+    </style>
+</head>
+<body>
+
+<div class="p-3">
+    <div class="bg-dark text-white p-4 rounded-4 mb-4 shadow">
+        <h4 class="fw-bold mb-0 text-info">BUMDes MANDIRI</h4>
+        <small id="tgl-info"></small>
+        <hr class="opacity-25">
+        <div class="d-flex justify-content-between text-warning fw-bold">
+            <small>Saldo Bersih:</small>
+            <h5 id="dash-saldo">Rp 0</h5>
+        </div>
+    </div>
+
+    <div id="tab-kasir" class="tab active">
+        <div class="app-card">
+            <label class="small fw-bold text-muted">PETUGAS ADMIN</label>
+            <input type="text" id="admin" class="form-control mb-2" placeholder="Nama Admin">
+            <div class="row g-2">
+                <div class="col-6">
+                    <label class="small fw-bold text-muted">BERAT (KG)</label>
+                    <input type="number" id="berat" class="form-control" placeholder="0.0" oninput="hitung()">
+                </div>
+                <div class="col-6">
+                    <label class="small fw-bold text-muted">HARGA (RP)</label>
+                    <input type="number" id="harga" class="form-control" placeholder="25000" oninput="hitung()">
+                </div>
+            </div>
+        </div>
+        <div class="app-card bg-primary text-white text-center">
+            <small class="opacity-75">TOTAL BAYAR</small>
+            <h2 id="total-display" class="fw-bold">Rp 0</h2>
+        </div>
+        <button onclick="simpanTrx()" class="btn btn-dark w-100 py-3 fw-bold">SIMPAN & DOWNLOAD NOTA (PDF)</button>
+    </div>
+
+    <div id="tab-biaya" class="tab">
+        <div class="app-card border-start border-danger border-4">
+            <h6 class="fw-bold text-danger">INPUT PENGELUARAN</h6>
+            <input type="text" id="ket-biaya" class="form-control mb-2" placeholder="Keterangan">
+            <input type="number" id="nom-biaya" class="form-control mb-3" placeholder="Nominal Rp">
+            <button onclick="simpanBiaya()" class="btn btn-danger w-100 fw-bold">SIMPAN BIAYA</button>
+        </div>
+        <h6 class="fw-bold small text-muted px-2">DAFTAR BIAYA</h6>
+        <div id="list-biaya-full"></div>
+    </div>
+
+    <div id="tab-riwayat" class="tab">
+        <h6 class="fw-bold small text-muted px-2">RIWAYAT TRANSAKSI (KG & HARGA)</h6>
+        <div id="list-riwayat"></div>
+    </div>
+
+    <div id="tab-laporan" class="tab">
+        <div class="app-card border-top border-dark border-4">
+            <h6 class="fw-bold small">LAPORAN HARIAN</h6>
+            <input type="date" id="tgl-lap" class="form-control mb-2" onchange="updateLaporan()">
+            <div id="res-harian" class="p-2 bg-light rounded small fw-bold mb-2">Pilih Tanggal</div>
+            <button onclick="cetakLaporan('Harian')" class="btn btn-dark btn-sm w-100">SIMPAN LAPORAN PDF</button>
+        </div>
+        <div class="app-card border-top border-primary border-4">
+            <h6 class="fw-bold small text-primary">LAPORAN BULANAN</h6>
+            <input type="month" id="bln-lap" class="form-control mb-2" onchange="updateLaporan()">
+            <div id="res-bulanan" class="p-2 bg-light rounded small fw-bold mb-2 text-primary">Pilih Bulan</div>
+            <button onclick="cetakLaporan('Bulanan')" class="btn btn-primary btn-sm w-100">SIMPAN LAPORAN PDF</button>
+        </div>
+    </div>
+
+    <div id="tab-opsi" class="tab">
+        <div class="app-card">
+            <button onclick="exportExcel()" class="btn btn-success w-100 py-3 fw-bold mb-4">BACKUP KE EXCEL</button>
+            <div class="border-top pt-3">
+                <p class="small fw-bold text-center text-muted">RESTORE DATA</p>
+                <input type="file" id="file-import" class="form-control mb-2">
+                <button onclick="importExcel()" class="btn btn-outline-secondary w-100 btn-sm">PROSES IMPORT</button>
+            </div>
+        </div>
+        <button onclick="resetData()" class="btn btn-link text-danger w-100 mt-5 opacity-25">Reset Semua Data</button>
+    </div>
+</div>
+
+<nav class="bottom-nav shadow-lg">
+    <button class="nav-item active" onclick="nav('kasir', this)">🛒 KASIR</button>
+    <button class="nav-item" onclick="nav('biaya', this)">💸 BIAYA</button>
+    <button class="nav-item" onclick="nav('riwayat', this)">📋 RIWAYAT</button>
+    <button class="nav-item" onclick="nav('laporan', this)">📊 LAPORAN</button>
+    <button class="nav-item" onclick="nav('opsi', this)">⚙️ OPSI</button>
+</nav>
+
+<script>
+    const { jsPDF } = window.jspdf;
+    let db_trx = JSON.parse(localStorage.getItem('db_final_v21_trx')) || [];
+    let db_biaya = JSON.parse(localStorage.getItem('db_final_v21_biaya')) || [];
+
+    window.onload = () => {
+        document.getElementById('tgl-info').innerText = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+        updateDashboard();
+        renderBiaya();
+    };
+
+    function nav(s, el) {
+        document.querySelectorAll('.tab').forEach(x => x.style.display = 'none');
+        document.getElementById('tab-' + s).style.display = 'block';
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        if(s === 'riwayat') renderRiwayat();
+        if(s === 'biaya') renderBiaya();
+    }
+
+    function hitung() {
+        const t = (Number(document.getElementById('berat').value) || 0) * (Number(document.getElementById('harga').value) || 0);
+        document.getElementById('total-display').innerText = "Rp " + t.toLocaleString();
+    }
+
+    function updateDashboard() {
+        const h = new Date().toISOString().slice(0,10);
+        const o = db_trx.filter(x => x.tgl.startsWith(h)).reduce((a,b) => a + b.total, 0);
+        const b = db_biaya.filter(x => x.tgl.startsWith(h)).reduce((a,b) => a + b.nominal, 0);
+        document.getElementById('dash-saldo').innerText = "Rp " + (o - b).toLocaleString();
+    }
+
+    // FUNGSI BUAT PDF (PENGGANTI PRINT YANG GAGAL)
+    function buatPDF(judul, isiTeks) {
+        const doc = new jsPDF({ unit: 'mm', format: [80, 150] }); // Ukuran kertas thermal
+        doc.setFont("courier", "bold");
+        doc.text("BUMDes MANDIRI", 40, 10, { align: "center" });
+        doc.setFontSize(10);
+        doc.text(new Date().toLocaleString(), 40, 16, { align: "center" });
+        doc.text("--------------------------", 40, 22, { align: "center" });
+        
+        let y = 30;
+        isiTeks.forEach(line => {
+            doc.text(line, 5, y);
+            y += 7;
+        });
+
+        doc.text("--------------------------", 40, y+5, { align: "center" });
+        doc.text("Terima Kasih", 40, y+12, { align: "center" });
+        doc.save(`${judul}.pdf`);
+    }
+
+    function simpanTrx() {
+        const adm = document.getElementById('admin').value || 'Petugas';
+        const kg = Number(document.getElementById('berat').value);
+        const hrg = Number(document.getElementById('harga').value);
+        if(!kg) return alert("Isi Berat!");
+
+        const item = { id: Date.now(), tgl: new Date().toISOString(), adm, kg, hrg, total: kg * hrg };
+        db_trx.push(item);
+        localStorage.setItem('db_final_v21_trx', JSON.stringify(db_trx));
+
+        const rincian = [
+            `Admin  : ${item.adm}`,
+            `Berat  : ${item.kg} Kg`,
+            `Harga  : Rp ${item.hrg.toLocaleString()}`,
+            ` `,
+            `TOTAL  : Rp ${item.total.toLocaleString()}`
+        ];
+        buatPDF("Nota_BUMDes", rincian);
+        
+        document.getElementById('berat').value = ""; hitung(); updateDashboard();
+    }
+
+    function simpanBiaya() {
+        const ket = document.getElementById('ket-biaya').value;
+        const nom = Number(document.getElementById('nom-biaya').value);
+        if(!nom) return alert("Isi nominal!");
+        db_biaya.push({ id: Date.now(), tgl: new Date().toISOString(), ket, nominal: nom });
+        localStorage.setItem('db_final_v21_biaya', JSON.stringify(db_biaya));
+        document.getElementById('ket-biaya').value = ""; document.getElementById('nom-biaya').value = "";
+        renderBiaya(); updateDashboard();
+    }
+
+    function renderBiaya() {
+        document.getElementById('list-biaya-full').innerHTML = db_biaya.slice().reverse().map(b => `
+            <div class="app-card d-flex justify-content-between py-2 border-end border-danger border-4">
+                <div><b class="small text-uppercase">${b.ket}</b><br><small class="text-muted">${b.tgl.slice(0,10)}</small></div>
+                <b class="text-danger">Rp ${b.nominal.toLocaleString()}</b>
+            </div>`).join('') || '<p class="text-center small py-3">Kosong</p>';
+    }
+
+    function renderRiwayat() {
+        document.getElementById('list-riwayat').innerHTML = db_trx.slice().reverse().map(x => `
+            <div class="app-card shadow-sm">
+                <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                    <div><b class="small text-uppercase">${x.adm}</b><br><small class="text-muted">${x.tgl.replace('T',' ').slice(0,16)}</small></div>
+                    <b class="text-primary">Rp ${x.total.toLocaleString()}</b>
+                </div>
+                <div class="d-flex justify-content-between small fw-bold text-secondary">
+                    <span>${x.kg} Kg</span>
+                    <span>@ Rp ${x.hrg.toLocaleString()}</span>
+                </div>
+            </div>`).join('') || '<p class="text-center small py-5">Kosong</p>';
+    }
+
+    function updateLaporan() {
+        const d = document.getElementById('tgl-lap').value;
+        const m = document.getElementById('bln-lap').value;
+        if(d) {
+            const o = db_trx.filter(x => x.tgl.startsWith(d)).reduce((a,b)=>a+b.total,0);
+            const b = db_biaya.filter(x => x.tgl.startsWith(d)).reduce((a,b)=>a+b.nominal,0);
+            document.getElementById('res-harian').innerHTML = `Laba: Rp ${(o-b).toLocaleString()}`;
+        }
+        if(m) {
+            const oM = db_trx.filter(x => x.tgl.startsWith(m)).reduce((a,b)=>a+b.total,0);
+            const bM = db_biaya.filter(x => x.tgl.startsWith(m)).reduce((a,b)=>a+b.nominal,0);
+            document.getElementById('res-bulanan').innerHTML = `Laba: Rp ${(oM-bM).toLocaleString()}`;
+        }
+    }
+
+    function cetakLaporan(tipe) {
+        const isi = (tipe === 'Harian') ? document.getElementById('res-harian').innerText : document.getElementById('res-bulanan').innerText;
+        buatPDF("Laporan_"+tipe, [`Laporan ${tipe}`, isi]);
+    }
+
+    function exportExcel() {
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db_trx), "Transaksi");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db_biaya), "Biaya");
+        XLSX.writeFile(wb, "Backup_BUMDes.xlsx");
+    }
+
+    function importExcel() {
+        const f = document.getElementById('file-import').files[0];
+        if(!f) return alert("Pilih file!");
+        const r = new FileReader();
+        r.onload = (e) => {
+            const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+            db_trx = XLSX.utils.sheet_to_json(wb.Sheets.Transaksi) || [];
+            db_biaya = XLSX.utils.sheet_to_json(wb.Sheets.Biaya) || [];
+            localStorage.setItem('db_final_v21_trx', JSON.stringify(db_trx));
+            localStorage.setItem('db_final_v21_biaya', JSON.stringify(db_biaya));
+            alert("Berhasil!"); location.reload();
+        };
+        r.readAsArrayBuffer(f);
+    }
+
+    function resetData() { if(confirm("Hapus semua?")) { localStorage.clear(); location.reload(); } }
+</script>
+</body>
+</html>
