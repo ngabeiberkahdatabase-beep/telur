@@ -147,21 +147,59 @@
     }
 
 function updateDashboard() {
-    // 1. Ambil tanggal hari ini dalam format dd/mm/yyyy (Pastikan 2 digit)
+    // Ambil tanggal hari ini dalam format dd/mm/yyyy
     const d = new Date();
-    const tglHarian = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+    const hari = String(d.getDate()).padStart(2, '0');
+    const bulan = String(d.getMonth() + 1).padStart(2, '0');
+    const tahun = d.getFullYear();
+    const tglHarian = `${hari}/${bulan}/${tahun}`;
 
-    // 2. Filter dengan startsWith agar jam di belakang tidak mengganggu
+    // Filter Transaksi (Masuk)
     const totalMasuk = db_trx
-        .filter(x => x.tgl && x.tgl.startsWith(tglHarian))
+        .filter(x => String(x.tgl).startsWith(tglHarian))
         .reduce((a, b) => a + (Number(b.total) || 0), 0);
 
+    // Filter Biaya (Keluar)
     const totalKeluar = db_biaya
-        .filter(x => x.tgl && x.tgl.startsWith(tglHarian))
+        .filter(x => String(x.tgl).startsWith(tglHarian))
         .reduce((a, b) => a + (Number(b.nominal) || 0), 0);
 
-    // 3. Tampilkan hasil
-    document.getElementById('dash-saldo').innerText = "Rp " + (totalMasuk - totalKeluar).toLocaleString();
+    const saldoBersih = totalMasuk - totalKeluar;
+    document.getElementById('dash-saldo').innerText = "Rp " + saldoBersih.toLocaleString('id-ID');
+}
+
+function updateLaporan() {
+    const tglInput = document.getElementById('tgl-lap').value; // Format yyyy-mm-dd
+    const blnInput = document.getElementById('bln-lap').value; // Format yyyy-mm
+
+    // Laporan Harian
+    if (tglInput) {
+        const [y, m, d] = tglInput.split('-');
+        const tglTarget = `${d}/${m}/${y}`;
+        
+        const masuk = db_trx.filter(x => String(x.tgl).startsWith(tglTarget)).reduce((a, b) => a + Number(b.total), 0);
+        const keluar = db_biaya.filter(x => String(x.tgl).startsWith(tglTarget)).reduce((a, b) => a + Number(b.nominal), 0);
+        
+        document.getElementById('res-harian').innerHTML = `
+            Tgl: ${tglTarget}<br>
+            Masuk: Rp ${masuk.toLocaleString()}<br>
+            Keluar: Rp ${keluar.toLocaleString()}<hr>
+            LABA: Rp ${(masuk - keluar).toLocaleString()}`;
+    }
+
+    // Laporan Bulanan
+    if (blnInput) {
+        const [y, m] = blnInput.split('-');
+        const blnTarget = `${m}/${y}`; // Mencari mm/yyyy
+        
+        const masukBln = db_trx.filter(x => String(x.tgl).includes(blnTarget)).reduce((a, b) => a + Number(b.total), 0);
+        const keluarBln = db_biaya.filter(x => String(x.tgl).includes(blnTarget)).reduce((a, b) => a + Number(b.nominal), 0);
+        
+        document.getElementById('res-bulanan').innerHTML = `
+            Bulan: ${blnTarget}<br>
+            Masuk: Rp ${masukBln.toLocaleString()}<br>
+            Keluar: Rp ${keluarBln.toLocaleString()}<hr>
+            LABA: Rp ${(masukBln - keluarBln).toLocaleString()}`;
     }
 
     function cetakRawBT(item) {
