@@ -1,148 +1,245 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: sans-serif; background-color: #f8fafc; padding-bottom: 100px; }
-    .tab-content { display: none; }
-    .active { display: block; }
-    .nav-active { color: #2563eb; font-weight: bold; border-top: 4px solid #2563eb; }
-    input { font-size: 16px !important; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kasir BUMDes Ngabei Berkah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; padding-bottom: 80px; }
+        .active-nav { color: #059669; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 10px 0; z-index: 50; }
+        input { border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; width: 100%; outline: none; }
+        input:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+    </style>
 </head>
 <body>
 
-  <div class="fixed top-0 w-full bg-blue-600 text-white p-6 shadow-lg z-50 rounded-b-3xl">
-    <div class="flex justify-between items-center">
-      <div>
-        <p class="text-[10px] uppercase font-bold opacity-70">BUMDes Ngabei Berkah</p>
-        <h2 id="disp-saldo" class="text-3xl font-black">Rp 0</h2>
-      </div>
-      <button onclick="refreshData()" class="bg-blue-500 p-2 rounded-full">🔄</button>
-    </div>
-  </div>
-
-  <div class="container mx-auto px-4 mt-32">
-    
-    <div id="tab-kasir" class="tab-content active">
-      <div class="bg-white p-6 rounded-3xl shadow-md border border-gray-100 space-y-4">
-        <input type="text" id="petugas" placeholder="Nama Petugas" class="w-full p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-100 outline-none">
-        <div class="flex gap-2">
-          <input type="number" id="kg" oninput="hitung()" placeholder="Kg" class="w-1/2 p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-200 outline-none">
-          <input type="number" id="harga" oninput="hitung()" placeholder="Harga" class="w-1/2 p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-200 outline-none">
+    <header class="bg-emerald-600 text-white p-6 rounded-b-3xl shadow-lg mb-6">
+        <h1 class="text-xl font-bold">BUMDes Ngabei Berkah</h1>
+        <div class="mt-4 grid grid-cols-2 gap-4">
+            <div class="bg-white/20 p-3 rounded-xl">
+                <p class="text-xs opacity-80">Saldo Bersih Hari Ini</p>
+                <h2 id="dash-saldo" class="text-lg font-bold">Rp 0</h2>
+            </div>
+            <div class="bg-white/20 p-3 rounded-xl">
+                <p class="text-xs opacity-80">Total Transaksi</p>
+                <h2 id="dash-count" class="text-lg font-bold text-emerald-100">0</h2>
+            </div>
         </div>
-        <div class="p-4 bg-blue-50 rounded-2xl text-center border-2 border-dashed border-blue-200">
-          <p class="text-xs text-blue-500">Total Bayar</p>
-          <h3 id="total-text" class="text-2xl font-black text-blue-800">Rp 0</h3>
-        </div>
-        <button onclick="simpanTrx()" id="btn-save" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl uppercase tracking-widest">SAVE & PRINT</button>
-      </div>
-    </div>
+    </header>
 
-    <div id="tab-biaya" class="tab-content">
-      <div class="bg-white p-6 rounded-3xl shadow-md space-y-4">
-        <h3 class="font-bold text-red-600 border-b pb-2">INPUT BIAYA</h3>
-        <input type="text" id="ket-biaya" placeholder="Keterangan" class="w-full p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-100">
-        <input type="number" id="nom-biaya" placeholder="Nominal Rp" class="w-full p-4 bg-gray-50 rounded-2xl border ring-1 ring-gray-100">
-        <button onclick="simpanBiaya()" id="btn-biaya" class="w-full bg-red-500 text-white font-black py-4 rounded-2xl shadow-lg uppercase">Simpan Biaya</button>
-      </div>
-    </div>
+    <main id="app-content" class="px-4">
+        </main>
 
-    <div id="tab-laporan" class="tab-content">
-      <div class="bg-white p-6 rounded-3xl shadow-md space-y-4">
-        <h3 class="font-bold text-gray-700 uppercase">Laporan Bulanan</h3>
-        <input type="month" id="filter-bulan" class="w-full p-3 border rounded-xl">
-        <button onclick="tampilLaporan()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Tampilkan Laporan</button>
-        <div id="hasil-laporan" class="mt-4 space-y-2 text-sm"></div>
-      </div>
-    </div>
+    <nav class="bottom-nav">
+        <button onclick="showPage('kasir')" class="nav-item flex flex-col items-center gap-1 active-nav" id="nav-kasir">
+            <i data-lucide="shopping-cart"></i><span class="text-[10px]">KASIR</span>
+        </button>
+        <button onclick="showPage('biaya')" class="nav-item flex flex-col items-center gap-1 text-gray-400" id="nav-biaya">
+            <i data-lucide="wallet"></i><span class="text-[10px]">BIAYA</span>
+        </button>
+        <button onclick="showPage('riwayat')" class="nav-item flex flex-col items-center gap-1 text-gray-400" id="nav-riwayat">
+            <i data-lucide="history"></i><span class="text-[10px]">RIWAYAT</span>
+        </button>
+        <button onclick="showPage('laporan')" class="nav-item flex flex-col items-center gap-1 text-gray-400" id="nav-laporan">
+            <i data-lucide="bar-chart-3"></i><span class="text-[10px]">LAPORAN</span>
+        </button>
+        <button onclick="showPage('setting')" class="nav-item flex flex-col items-center gap-1 text-gray-400" id="nav-setting">
+            <i data-lucide="settings"></i><span class="text-[10px]">SETTING</span>
+        </button>
+    </nav>
 
-    <div id="tab-setting" class="tab-content">
-      <div class="bg-white p-6 rounded-3xl shadow-md space-y-4">
-        <h3 class="font-bold text-gray-700 uppercase">Pengaturan</h3>
-        <button onclick="exportExcel()" class="w-full bg-gray-700 text-white py-4 rounded-2xl font-bold">BACK UP EXCEL</button>
-        <button onclick="resetData()" class="w-full bg-orange-500 text-white py-4 rounded-2xl font-bold">RESET SEMUA DATA</button>
-      </div>
-    </div>
-  </div>
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzh7ySK5BQS0x4m5u-QBFFPsSN55RW0R0ka24LOWTZJXyzOQ2ydNLCEq9cDOD9YYETd/exec";
+        let dbData = { transaksi: [], biaya: [] };
 
-  <div class="fixed bottom-0 w-full bg-white border-t flex justify-around py-3 shadow-inner z-50">
-    <button onclick="nav('tab-kasir', this)" class="nav-active flex-1 text-[9px] font-bold">KASIR</button>
-    <button onclick="nav('tab-biaya', this)" class="flex-1 text-[9px] font-bold text-gray-400">BIAYA</button>
-    <button onclick="nav('tab-laporan', this)" class="flex-1 text-[9px] font-bold text-gray-400">LAPORAN</button>
-    <button onclick="nav('tab-setting', this)" class="flex-1 text-[9px] font-bold text-gray-400">SETTING</button>
-  </div>
+        async function init() {
+            lucide.createIcons();
+            showPage('kasir');
+            await refreshData();
+        }
 
-  <script>
-    function hitung() {
-      const kg = parseFloat(document.getElementById('kg').value) || 0;
-      const hrg = parseFloat(document.getElementById('harga').value) || 0;
-      document.getElementById('total-text').innerText = "Rp " + (kg * hrg).toLocaleString('id-ID');
-    }
+        async function refreshData() {
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getData' }) });
+                dbData = await res.json();
+                updateDashboard();
+            } catch (e) { console.error("Sync error", e); }
+        }
 
-    function nav(id, el) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('button').forEach(b => b.classList.remove('nav-active'));
-      document.getElementById(id).classList.add('active');
-      el.classList.add('nav-active');
-      refreshData();
-    }
+        function updateDashboard() {
+            const today = new Date().toLocaleDateString();
+            const trxToday = dbData.transaksi.filter(t => new Date(t[0]).toLocaleDateString() === today);
+            const expToday = dbData.biaya.filter(b => new Date(b[1]).toLocaleDateString() === today);
+            
+            const income = trxToday.reduce((acc, curr) => acc + curr[4], 0);
+            const expense = expToday.reduce((acc, curr) => acc + curr[3], 0);
+            
+            document.getElementById('dash-saldo').innerText = `Rp ${(income - expense).toLocaleString()}`;
+            document.getElementById('dash-count').innerText = trxToday.length;
+        }
 
-    function simpanTrx() {
-      const p = document.getElementById('petugas').value;
-      const k = document.getElementById('kg').value;
-      const h = document.getElementById('harga').value;
-      const t = k * h;
-      if(!p || !k || !h) return alert("Lengkapi data!");
+        const pages = {
+            kasir: `
+                <div class="glass-card p-6 rounded-2xl shadow-sm">
+                    <h3 class="font-bold mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-500"></i> Transaksi Baru</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="k-admin" placeholder="Nama Petugas" required>
+                        <input type="number" id="k-kg" placeholder="Berat (kg)" oninput="calcTotal()" required>
+                        <input type="number" id="k-harga" placeholder="Harga (Rp)" oninput="calcTotal()" required>
+                        <div class="p-4 bg-emerald-50 rounded-xl text-center">
+                            <p class="text-xs text-emerald-600 font-semibold">TOTAL PEMBAYARAN</p>
+                            <h2 id="k-total-label" class="text-2xl font-bold text-emerald-700">Rp 0</h2>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mt-4">
+                            <button onclick="simpanTransaksi()" class="bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">SIMPAN</button>
+                            <button onclick="printStruk()" class="bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">PRINT</button>
+                        </div>
+                    </div>
+                </div>`,
+            biaya: `
+                <div class="glass-card p-6 rounded-2xl shadow-sm mb-4">
+                    <h3 class="font-bold mb-4">Input Pengeluaran</h3>
+                    <div class="space-y-3">
+                        <input type="text" id="b-ket" placeholder="Keterangan">
+                        <input type="number" id="b-nom" placeholder="Nominal (Rp)">
+                        <button onclick="simpanBiaya()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold">SIMPAN BIAYA</button>
+                    </div>
+                </div>
+                <div id="list-biaya" class="space-y-2"></div>`,
+            riwayat: `
+                <div class="flex justify-between items-center mb-4"><h3 class="font-bold">Riwayat Transaksi</h3></div>
+                <div id="list-riwayat" class="space-y-3"></div>`,
+            laporan: `
+                <div class="glass-card p-6 rounded-2xl mb-4">
+                    <input type="month" id="lap-bulan" class="mb-4" onchange="generateLaporan()">
+                    <div id="lap-summary" class="space-y-2 text-sm"></div>
+                </div>
+                <div id="lap-table" class="overflow-x-auto text-xs"></div>`,
+            setting: `
+                <div class="glass-card p-6 rounded-2xl text-center space-y-4">
+                    <button onclick="exportExcel()" class="w-full border-2 border-emerald-500 text-emerald-600 py-3 rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="file-text"></i> BACKUP EXCEL</button>
+                    <button onclick="resetData()" class="w-full bg-red-100 text-red-600 py-3 rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="trash-2"></i> RESET DATA</button>
+                </div>`
+        };
 
-      // Respon Instan agar tidak terasa lama
-      const btn = document.getElementById('btn-save');
-      btn.innerText = "MENYIMPAN...";
-      btn.disabled = true;
+        function showPage(page) {
+            document.getElementById('app-content').innerHTML = pages[page];
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.replace('active-nav', 'text-gray-400'));
+            document.getElementById(`nav-${page}`).classList.replace('text-gray-400', 'active-nav');
+            lucide.createIcons();
+            if(page === 'riwayat') renderRiwayat();
+            if(page === 'biaya') renderBiaya();
+        }
 
-      google.script.run.withSuccessHandler(() => {
-        window.location.href = `rawbt:data/text,BUMDes Ngabei Berkah\n----------------\nPetugas: ${p}\nBerat  : ${k}kg\nHarga  : ${h}\nTotal  : ${t}\n----------------\n`;
-        document.getElementById('kg').value = "";
-        document.getElementById('harga').value = "";
-        document.getElementById('total-text').innerText = "Rp 0";
-        btn.innerText = "SAVE & PRINT";
-        btn.disabled = false;
-        refreshData();
-      }).saveData('transaksi', [new Date(), p, k, h, t]);
-    }
+        function calcTotal() {
+            const kg = document.getElementById('k-kg').value || 0;
+            const harga = document.getElementById('k-harga').value || 0;
+            document.getElementById('k-total-label').innerText = `Rp ${(kg * harga).toLocaleString()}`;
+        }
 
-    function simpanBiaya() {
-      const ket = document.getElementById('ket-biaya').value;
-      const nom = document.getElementById('nom-biaya').value;
-      if(!ket || !nom) return alert("Lengkapi data!");
+        async function simpanTransaksi() {
+            const data = {
+                action: 'tambahTransaksi',
+                admin: document.getElementById('k-admin').value,
+                kg: parseFloat(document.getElementById('k-kg').value),
+                harga: parseFloat(document.getElementById('k-harga').value),
+                total: parseFloat(document.getElementById('k-kg').value) * parseFloat(document.getElementById('k-harga').value)
+            };
+            if(!data.admin || !data.kg) return alert("Isi data lengkap!");
+            
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+            alert("Berhasil Simpan!");
+            document.getElementById('k-kg').value = "";
+            document.getElementById('k-harga').value = "";
+            calcTotal();
+            refreshData();
+        }
 
-      google.script.run.withSuccessHandler(() => {
-        alert("Biaya Tersimpan!");
-        document.getElementById('ket-biaya').value = "";
-        document.getElementById('nom-biaya').value = "";
-        refreshData();
-      }).saveData('biaya', [new Date(), ket, nom]);
-    }
+        async function simpanBiaya() {
+            const data = {
+                action: 'tambahBiaya',
+                keterangan: document.getElementById('b-ket').value,
+                nominal: parseFloat(document.getElementById('b-nom').value)
+            };
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+            refreshData();
+            showPage('biaya');
+        }
 
-    function refreshData() {
-      google.script.run.withSuccessHandler(res => {
-        document.getElementById('disp-saldo').innerText = "Rp " + res.saldo.toLocaleString('id-ID');
-      }).getDashboardData();
-    }
+        function renderRiwayat() {
+            const container = document.getElementById('list-riwayat');
+            container.innerHTML = dbData.transaksi.slice().reverse().map(t => `
+                <div class="glass-card p-4 rounded-xl flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] text-gray-400">${new Date(t[0]).toLocaleString('id-ID')}</p>
+                        <p class="font-bold">${t[1]} (${t[2]}kg)</p>
+                    </div>
+                    <p class="font-bold text-emerald-600">Rp ${t[4].toLocaleString()}</p>
+                </div>
+            `).join('');
+        }
 
-    function exportExcel() {
-       window.open('https://docs.google.com/spreadsheets/d/' + google.script.host.origin + '/export?format=xlsx');
-    }
+        function renderBiaya() {
+            const container = document.getElementById('list-biaya');
+            container.innerHTML = dbData.biaya.slice().reverse().map(b => `
+                <div class="glass-card p-4 rounded-xl flex justify-between items-center border-l-4 border-red-400">
+                    <div>
+                        <p class="text-[10px] text-gray-400">${new Date(b[1]).toLocaleDateString()}</p>
+                        <p class="font-bold text-sm">${b[2]}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <p class="font-bold text-red-500 text-sm">Rp ${b[3].toLocaleString()}</p>
+                        <button onclick="hapusBiaya('${b[0]}')" class="text-gray-300"><i data-lucide="x-circle"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
 
-    function resetData() {
-      if(confirm("Hapus semua data transaksi & biaya?")) {
-        google.script.run.withSuccessHandler(msg => { alert(msg); refreshData(); }).resetAllData();
-      }
-    }
+        async function hapusBiaya(id) {
+            if(!confirm("Hapus biaya ini?")) return;
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'hapusBiaya', id }) });
+            refreshData();
+            showPage('biaya');
+        }
 
-    window.onload = refreshData;
-  </script>
+        function printStruk() {
+            const admin = document.getElementById('k-admin').value;
+            const kg = document.getElementById('k-kg').value;
+            const harga = document.getElementById('k-harga').value;
+            const total = kg * harga;
+            const date = new Date().toLocaleString();
+
+            const struk = `
+BUMDes Ngabei Berkah
+---------------------------
+Tgl   : ${date}
+Admin : ${admin}
+---------------------------
+Kg    : ${kg}
+Harga : Rp ${harga}
+Total : Rp ${total}
+---------------------------
+TERIMA KASIH
+            `;
+            
+            // RawBT integration
+            window.location.href = "rawbt:base64," + btoa(struk);
+        }
+
+        function resetData() {
+            if(confirm("Hapus semua data di cloud?")) {
+                fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'resetData' }) })
+                .then(() => { alert("Data direset"); location.reload(); });
+            }
+        }
+
+        init();
+    </script>
 </body>
 </html>
