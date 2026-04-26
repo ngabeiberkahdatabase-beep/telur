@@ -8,295 +8,262 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; padding-bottom: 90px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; padding-bottom: 100px; }
         
-        /* Dashboard Biru Dongker */
         .bg-navy { background-color: #0f172a; }
-        
-        /* Navigasi Bawah Gelap */
         .bottom-nav { 
             position: fixed; bottom: 0; left: 0; right: 0; 
-            background: #1e293b; /* Warna gelap */
+            background: #1e293b; 
             display: flex; justify-content: space-around; 
-            padding: 12px 0; z-index: 50;
+            padding: 15px 0; z-index: 50;
             border-top: 2px solid #334155;
         }
-        .nav-item { color: #94a3b8; transition: all 0.3s; }
+        .nav-item { color: #94a3b8; transition: all 0.3s; text-align: center; }
         .active-nav { color: #ffffff !important; }
         
-        .glass-card { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border: 1px solid #e2e8f0; }
-        input, select { border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px; width: 100%; font-size: 16px; }
-        input:focus { border-color: #1e293b; outline: none; ring: 2px solid rgba(15, 23, 42, 0.1); }
+        .glass-card { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        input { border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; width: 100%; font-size: 16px; outline: none; }
+        input:focus { border-color: #0f172a; box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05); }
+        th { background: #f8fafc; padding: 12px; font-weight: 700; color: #64748b; font-size: 10px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <header class="bg-navy text-white p-6 rounded-b-[40px] shadow-2xl mb-6">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="text-lg font-bold tracking-tight">BUMDes Ngabei Berkah</h1>
-            <div class="bg-white/10 p-2 rounded-full"><i data-lucide="user" size="20"></i></div>
-        </div>
-        <div class="mt-2 grid grid-cols-2 gap-4">
-            <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/5">
-                <p class="text-[10px] uppercase tracking-widest opacity-70 mb-1">Saldo Bersih Hari Ini</p>
+        <h1 class="text-lg font-bold opacity-80 mb-4">BUMDes Ngabei Berkah</h1>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white/10 p-4 rounded-2xl border border-white/5">
+                <p class="text-[10px] uppercase opacity-70 mb-1">Saldo Bersih Hari Ini</p>
                 <h2 id="dash-saldo" class="text-xl font-bold">Rp 0</h2>
             </div>
-            <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/5">
-                <p class="text-[10px] uppercase tracking-widest opacity-70 mb-1">Total Transaksi</p>
+            <div class="bg-white/10 p-4 rounded-2xl border border-white/5">
+                <p class="text-[10px] uppercase opacity-70 mb-1">Total Transaksi</p>
                 <h2 id="dash-count" class="text-xl font-bold text-blue-200">0</h2>
             </div>
         </div>
     </header>
 
-    <main id="app-content" class="px-4">
-        </main>
+    <main id="app-content" class="px-4"></main>
 
     <nav class="bottom-nav">
-        <button onclick="showPage('kasir')" class="nav-item flex flex-col items-center gap-1" id="nav-kasir">
-            <i data-lucide="layout-grid"></i><span class="text-[11px] font-semibold">Kasir</span>
-        </button>
-        <button onclick="showPage('biaya')" class="nav-item flex flex-col items-center gap-1" id="nav-biaya">
-            <i data-lucide="receipt"></i><span class="text-[11px] font-semibold">Biaya</span>
-        </button>
-        <button onclick="showPage('riwayat')" class="nav-item flex flex-col items-center gap-1" id="nav-riwayat">
-            <i data-lucide="clock"></i><span class="text-[11px] font-semibold">Riwayat</span>
-        </button>
-        <button onclick="showPage('laporan')" class="nav-item flex flex-col items-center gap-1" id="nav-laporan">
-            <i data-lucide="file-bar-chart"></i><span class="text-[11px] font-semibold">Laporan</span>
-        </button>
-        <button onclick="showPage('setting')" class="nav-item flex flex-col items-center gap-1" id="nav-setting">
-            <i data-lucide="menu"></i><span class="text-[11px] font-semibold">Menu</span>
-        </button>
+        <button onclick="showPage('kasir')" class="nav-item" id="nav-kasir"><i data-lucide="layout-grid"></i><div class="text-[10px] mt-1">Kasir</div></button>
+        <button onclick="showPage('biaya')" class="nav-item" id="nav-biaya"><i data-lucide="receipt"></i><div class="text-[10px] mt-1">Biaya</div></button>
+        <button onclick="showPage('riwayat')" class="nav-item" id="nav-riwayat"><i data-lucide="clock"></i><div class="text-[10px] mt-1">Riwayat</div></button>
+        <button onclick="showPage('laporan')" class="nav-item" id="nav-laporan"><i data-lucide="file-bar-chart"></i><div class="text-[10px] mt-1">Laporan</div></button>
+        <button onclick="showPage('setting')" class="nav-item" id="nav-setting"><i data-lucide="settings"></i><div class="text-[10px] mt-1">Setting</div></button>
     </nav>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzh7ySK5BQS0x4m5u-QBFFPsSN55RW0R0ka24LOWTZJXyzOQ2ydNLCEq9cDOD9YYETd/exec";
         let dbData = { transaksi: [], biaya: [] };
+        let editId = null;
 
-        async function init() {
-            lucide.createIcons();
-            showPage('kasir');
-            await refreshData();
-        }
+        async function init() { showPage('kasir'); await refreshData(); }
 
         async function refreshData() {
             try {
                 const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getData' }) });
                 dbData = await res.json();
                 updateDashboard();
-            } catch (e) { console.error("Koneksi gagal", e); }
+            } catch (e) { console.error(e); }
         }
 
         function updateDashboard() {
-            const now = new Date();
-            const todayStr = now.getFullYear() + '-' + (now.getMonth() + 1).toString().padStart(2, '0') + '-' + now.getDate().toString().padStart(2, '0');
-            
-            const income = dbData.transaksi
-                .filter(t => t[0].startsWith(todayStr))
-                .reduce((acc, curr) => acc + curr[4], 0);
-            
-            const expense = dbData.biaya
-                .filter(b => b[1].startsWith(todayStr))
-                .reduce((acc, curr) => acc + curr[3], 0);
-            
-            document.getElementById('dash-saldo').innerText = `Rp ${(income - expense).toLocaleString()}`;
-            document.getElementById('dash-count').innerText = dbData.transaksi.filter(t => t[0].startsWith(todayStr)).length;
+            const today = new Date().toISOString().split('T')[0];
+            const inc = dbData.transaksi.filter(t => t[1].startsWith(today)).reduce((a,b)=>a+b[5], 0);
+            const exp = dbData.biaya.filter(b => b[1].startsWith(today)).reduce((a,b)=>a+b[3], 0);
+            document.getElementById('dash-saldo').innerText = `Rp ${(inc - exp).toLocaleString()}`;
+            document.getElementById('dash-count').innerText = dbData.transaksi.filter(t => t[1].startsWith(today)).length;
         }
 
         const pages = {
             kasir: `
                 <div class="glass-card p-6 mb-4">
-                    <h3 class="font-bold text-gray-800 mb-4">Input Transaksi</h3>
+                    <h3 id="form-title" class="font-bold text-gray-800 mb-4">Input Transaksi</h3>
                     <div class="space-y-4">
                         <input type="text" id="k-admin" placeholder="Nama Petugas">
-                        <input type="number" id="k-kg" placeholder="Berat (kg)" oninput="calcTotal()">
-                        <input type="number" id="k-harga" placeholder="Harga (Rp)" oninput="calcTotal()">
-                        <div class="p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center">
-                            <p class="text-[10px] text-gray-500 font-bold mb-1 uppercase">Total Bayar</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="number" id="k-kg" placeholder="Berat (kg)" oninput="calcTotal()">
+                            <input type="number" id="k-harga" placeholder="Harga (Rp)" oninput="calcTotal()">
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-xl text-center border-2 border-dashed border-gray-200">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Total Pembayaran</p>
                             <h2 id="k-total-label" class="text-2xl font-bold text-navy">Rp 0</h2>
                         </div>
-                        <div class="grid grid-cols-2 gap-3 pt-2">
-                            <button onclick="simpanTransaksi()" class="bg-navy text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition">SIMPAN</button>
-                            <button onclick="printStruk()" class="bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition flex items-center justify-center gap-2"><i data-lucide="printer" size="18"></i> PRINT</button>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="simpanTransaksi()" id="btn-save-trx" class="bg-navy text-white py-4 rounded-xl font-bold">SIMPAN</button>
+                            <button onclick="printStrukForm()" class="bg-blue-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="printer" size="18"></i> PRINT</button>
                         </div>
                     </div>
                 </div>`,
             biaya: `
-                <div class="glass-card p-6 mb-4">
-                    <h3 class="font-bold text-gray-800 mb-4">Input Pengeluaran</h3>
+                <div class="glass-card p-6 mb-6">
+                    <h3 id="biaya-title" class="font-bold text-gray-800 mb-4">Catat Biaya</h3>
                     <div class="space-y-3">
-                        <input type="text" id="b-ket" placeholder="Keterangan Pengeluaran">
+                        <input type="text" id="b-ket" placeholder="Keterangan">
                         <input type="number" id="b-nom" placeholder="Nominal (Rp)">
-                        <button onclick="simpanBiaya()" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold shadow-md">SIMPAN BIAYA</button>
+                        <button onclick="simpanBiaya()" id="btn-save-biaya" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold">SIMPAN BIAYA</button>
                     </div>
                 </div>
-                <div id="list-biaya" class="space-y-3 pb-4"></div>`,
+                <div id="list-biaya" class="space-y-3"></div>`,
             riwayat: `
-                <h3 class="font-bold text-gray-800 mb-4">Aktivitas Terbaru</h3>
-                <div id="list-riwayat" class="space-y-3"></div>`,
+                <div class="glass-card overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead><tr><th>Admin/Tgl</th><th>Total</th><th class="text-center">Aksi</th></tr></thead>
+                        <tbody id="table-riwayat-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>`,
             laporan: `
-                <div class="glass-card p-6 mb-4">
-                    <p class="text-xs font-bold text-gray-500 mb-2 uppercase">Pilih Periode Laporan</p>
+                <div class="glass-card p-6 mb-4 text-center">
                     <input type="month" id="lap-bulan" class="mb-4" onchange="renderLaporan()">
-                    <div id="lap-summary" class="grid grid-cols-1 gap-3"></div>
-                </div>
-                <div id="lap-detail" class="space-y-2"></div>`,
+                    <div id="lap-res" class="space-y-3 text-left"></div>
+                </div>`,
             setting: `
                 <div class="glass-card p-6 space-y-4">
-                    <div class="flex items-center gap-4 p-2 border-b border-gray-100">
-                        <div class="bg-blue-100 p-3 rounded-xl text-blue-600"><i data-lucide="database"></i></div>
-                        <div><p class="font-bold">Database</p><p class="text-xs text-gray-500">Google Sheets Cloud</p></div>
-                    </div>
-                    <button onclick="location.reload()" class="w-full bg-gray-100 text-gray-800 py-3 rounded-xl font-bold">Refresh Data</button>
-                    <button onclick="resetData()" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold border border-red-100">Reset Semua Data</button>
+                    <button onclick="refreshData()" class="w-full bg-gray-100 py-4 rounded-xl font-bold">Sinkronkan Data</button>
+                    <button onclick="resetData()" class="w-full bg-red-50 text-red-600 py-4 rounded-xl font-bold border border-red-100">Reset Database</button>
                 </div>`
         };
 
         function showPage(page) {
+            editId = null;
             document.getElementById('app-content').innerHTML = pages[page];
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav'));
             document.getElementById(`nav-${page}`).classList.add('active-nav');
             lucide.createIcons();
             if(page === 'riwayat') renderRiwayat();
             if(page === 'biaya') renderBiaya();
-            if(page === 'laporan') {
-                const now = new Date();
-                document.getElementById('lap-bulan').value = now.toISOString().slice(0, 7);
-                renderLaporan();
-            }
+            if(page === 'laporan') { document.getElementById('lap-bulan').value = new Date().toISOString().slice(0, 7); renderLaporan(); }
         }
 
-        // --- Logika Laporan yang Diperbaiki ---
-        function renderLaporan() {
-            const targetBulan = document.getElementById('lap-bulan').value; // format YYYY-MM
-            if(!targetBulan) return;
-
-            const filteredTrx = dbData.transaksi.filter(t => t[0].startsWith(targetBulan));
-            const filteredExp = dbData.biaya.filter(b => b[1].startsWith(targetBulan));
-
-            const totalIn = filteredTrx.reduce((a, b) => a + b[4], 0);
-            const totalOut = filteredExp.reduce((a, b) => a + b[3], 0);
-
-            document.getElementById('lap-summary').innerHTML = `
-                <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Total Penjualan</p>
-                    <p class="text-xl font-bold text-emerald-700">Rp ${totalIn.toLocaleString()}</p>
-                </div>
-                <div class="p-4 bg-red-50 rounded-xl border border-red-100">
-                    <p class="text-[10px] text-red-600 font-bold uppercase">Total Pengeluaran</p>
-                    <p class="text-xl font-bold text-red-700">Rp ${totalOut.toLocaleString()}</p>
-                </div>
-                <div class="p-4 bg-navy rounded-xl text-white">
-                    <p class="text-[10px] opacity-70 font-bold uppercase">Laba Bersih</p>
-                    <p class="text-xl font-bold">Rp ${(totalIn - totalOut).toLocaleString()}</p>
-                </div>
-            `;
-        }
-
-        // --- Logika Lainnya ---
         function calcTotal() {
             const kg = document.getElementById('k-kg').value || 0;
-            const harga = document.getElementById('k-harga').value || 0;
-            document.getElementById('k-total-label').innerText = `Rp ${(kg * harga).toLocaleString()}`;
+            const hr = document.getElementById('k-harga').value || 0;
+            document.getElementById('k-total-label').innerText = `Rp ${(kg * hr).toLocaleString()}`;
         }
 
         async function simpanTransaksi() {
+            const kg = parseFloat(document.getElementById('k-kg').value);
+            const hr = parseFloat(document.getElementById('k-harga').value);
             const data = {
-                action: 'tambahTransaksi',
+                action: editId ? 'editTransaksi' : 'tambahTransaksi',
+                id: editId,
                 admin: document.getElementById('k-admin').value,
-                kg: parseFloat(document.getElementById('k-kg').value),
-                harga: parseFloat(document.getElementById('k-harga').value),
-                total: parseFloat(document.getElementById('k-kg').value) * parseFloat(document.getElementById('k-harga').value)
+                kg: kg, harga: hr, total: kg * hr
             };
-            if(!data.admin || !data.kg || !data.harga) return alert("Mohon lengkapi data!");
-            
-            document.getElementById('app-content').innerHTML = `<div class="text-center p-10"><p class="animate-pulse">Menyimpan...</p></div>`;
+            if(!data.admin || !kg) return alert("Lengkapi data!");
             await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
             await refreshData();
-            showPage('kasir');
-            alert("Transaksi Tersimpan!");
-        }
-
-        async function simpanBiaya() {
-            const data = {
-                action: 'tambahBiaya',
-                keterangan: document.getElementById('b-ket').value,
-                nominal: parseFloat(document.getElementById('b-nom').value)
-            };
-            if(!data.keterangan || !data.nominal) return alert("Lengkapi data biaya!");
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
-            await refreshData();
-            showPage('biaya');
+            showPage('riwayat');
         }
 
         function renderRiwayat() {
-            const container = document.getElementById('list-riwayat');
-            if(dbData.transaksi.length === 0) container.innerHTML = `<p class="text-center text-gray-400 py-10">Belum ada transaksi</p>`;
-            else container.innerHTML = dbData.transaksi.slice().reverse().map(t => `
-                <div class="glass-card p-4 flex justify-between items-center border-l-4 border-navy">
-                    <div>
-                        <p class="text-[10px] text-gray-400 font-bold">${new Date(t[0]).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})}</p>
-                        <p class="font-bold text-gray-800">${t[1]} <span class="font-normal text-gray-500">(${t[2]}kg)</span></p>
-                    </div>
-                    <p class="font-bold text-navy">Rp ${t[4].toLocaleString()}</p>
-                </div>
+            const container = document.getElementById('table-riwayat-body');
+            container.innerHTML = dbData.transaksi.slice().reverse().map(t => `
+                <tr class="text-[11px]">
+                    <td class="p-3"><strong>${t[2]}</strong><br><span class="text-gray-400 text-[9px]">${new Date(t[1]).toLocaleDateString()}</span></td>
+                    <td class="p-3 font-bold text-navy">Rp ${t[5].toLocaleString()}</td>
+                    <td class="p-3 flex justify-center gap-1">
+                        <button onclick="editTrx('${t[0]}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="edit-2" size="14"></i></button>
+                        <button onclick="hapusTrx('${t[0]}')" class="p-2 bg-red-50 text-red-500 rounded-lg"><i data-lucide="trash" size="14"></i></button>
+                    </td>
+                </tr>
             `).join('');
+            lucide.createIcons();
+        }
+
+        function editTrx(id) {
+            const t = dbData.transaksi.find(x => x[0] === id);
+            showPage('kasir');
+            editId = id;
+            document.getElementById('k-admin').value = t[2];
+            document.getElementById('k-kg').value = t[3];
+            document.getElementById('k-harga').value = t[4];
+            calcTotal();
+            document.getElementById('btn-save-trx').innerText = "UPDATE DATA";
+        }
+
+        async function hapusTrx(id) {
+            if(!confirm("Hapus transaksi?")) return;
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'hapusTransaksi', id }) });
+            await refreshData();
+            renderRiwayat();
         }
 
         function renderBiaya() {
-            const container = document.getElementById('list-biaya');
-            if(dbData.biaya.length === 0) container.innerHTML = `<p class="text-center text-gray-400 py-10">Tidak ada pengeluaran</p>`;
-            else container.innerHTML = dbData.biaya.slice().reverse().map(b => `
+            document.getElementById('list-biaya').innerHTML = dbData.biaya.slice().reverse().map(b => `
                 <div class="glass-card p-4 flex justify-between items-center border-l-4 border-red-500">
-                    <div>
-                        <p class="text-[10px] text-gray-400 font-bold">${new Date(b[1]).toLocaleDateString()}</p>
+                    <div class="text-xs">
                         <p class="font-bold text-gray-800">${b[2]}</p>
+                        <p class="text-red-600 font-bold">Rp ${b[3].toLocaleString()}</p>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <p class="font-bold text-red-600">Rp ${b[3].toLocaleString()}</p>
-                        <button onclick="hapusBiaya('${b[0]}')" class="text-gray-300 active:text-red-500"><i data-lucide="trash" size="16"></i></button>
+                    <div class="flex gap-2">
+                        <button onclick="editBiaya('${b[0]}')" class="text-gray-300"><i data-lucide="edit" size="16"></i></button>
+                        <button onclick="hapusBiaya('${b[0]}')" class="text-red-200"><i data-lucide="trash" size="16"></i></button>
                     </div>
                 </div>
             `).join('');
             lucide.createIcons();
         }
 
-        async function hapusBiaya(id) {
-            if(!confirm("Hapus catatan biaya ini?")) return;
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'hapusBiaya', id }) });
+        function editBiaya(id) {
+            const b = dbData.biaya.find(x => x[0] === id);
+            editId = id;
+            document.getElementById('b-ket').value = b[2];
+            document.getElementById('b-nom').value = b[3];
+            document.getElementById('btn-save-biaya').innerText = "UPDATE BIAYA";
+        }
+
+        async function simpanBiaya() {
+            const data = {
+                action: editId ? 'editBiaya' : 'tambahBiaya',
+                id: editId,
+                keterangan: document.getElementById('b-ket').value,
+                nominal: parseFloat(document.getElementById('b-nom').value)
+            };
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
             await refreshData();
             showPage('biaya');
         }
 
-        function printStruk() {
-            const admin = document.getElementById('k-admin').value || "-";
-            const kg = document.getElementById('k-kg').value || 0;
-            const harga = document.getElementById('k-harga').value || 0;
-            const total = kg * harga;
-            const date = new Date().toLocaleString('id-ID');
+        async function hapusBiaya(id) {
+            if(!confirm("Hapus biaya?")) return;
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'hapusBiaya', id }) });
+            await refreshData();
+            renderBiaya();
+        }
 
-            const struk = `
-BUMDes Ngabei Berkah
----------------------------
-Tgl   : ${date}
-Admin : ${admin}
----------------------------
-Item  : Timbangan
-Berat : ${kg} kg
-Harga : Rp ${harga.toLocaleString()}
-Total : Rp ${total.toLocaleString()}
----------------------------
-      TERIMA KASIH
-    SIMPAN STRUK INI
-            `;
-            window.location.href = "rawbt:base64," + btoa(struk);
+        function renderLaporan() {
+            const bln = document.getElementById('lap-bulan').value;
+            const trx = dbData.transaksi.filter(t => t[1].startsWith(bln)).reduce((a,b)=>a+b[5], 0);
+            const exp = dbData.biaya.filter(b => b[1].startsWith(bln)).reduce((a,b)=>a+b[3], 0);
+            document.getElementById('lap-res').innerHTML = `
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-[10px] font-bold text-gray-400">TOTAL PENJUALAN</p>
+                    <p class="text-lg font-bold text-navy">Rp ${trx.toLocaleString()}</p>
+                </div>
+                <div class="p-4 bg-red-50 rounded-xl">
+                    <p class="text-[10px] font-bold text-red-400">TOTAL BIAYA</p>
+                    <p class="text-lg font-bold text-red-600">Rp ${exp.toLocaleString()}</p>
+                </div>
+                <div class="p-4 bg-navy text-white rounded-xl">
+                    <p class="text-[10px] font-bold opacity-70">SALDO BERSIH</p>
+                    <p class="text-xl font-bold">Rp ${(trx-exp).toLocaleString()}</p>
+                </div>`;
+        }
+
+        function printStrukForm() {
+            const adm = document.getElementById('k-admin').value;
+            const kg = document.getElementById('k-kg').value;
+            const hr = document.getElementById('k-harga').value;
+            const str = `BUMDes Ngabei Berkah\n------------------\nAdmin: ${adm}\nBerat: ${kg}kg\nHarga: ${hr}\nTotal: ${kg*hr}\n------------------`;
+            window.location.href = "rawbt:base64," + btoa(str);
         }
 
         async function resetData() {
-            if(confirm("PERINGATAN: Hapus semua data selamanya?")) {
-                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'resetData' }) });
-                location.reload();
-            }
+            if(!confirm("RESET SEMUA DATA?")) return;
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'resetData' }) });
+            location.reload();
         }
 
         init();
