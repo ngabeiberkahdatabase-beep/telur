@@ -7,27 +7,43 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; padding-bottom: 80px; }
-        .active-nav { color: #059669; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 10px 0; z-index: 50; }
-        input { border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; width: 100%; outline: none; }
-        input:focus { border-color: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; padding-bottom: 90px; }
+        
+        /* Dashboard Biru Dongker */
+        .bg-navy { background-color: #0f172a; }
+        
+        /* Navigasi Bawah Gelap */
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: #1e293b; /* Warna gelap */
+            display: flex; justify-content: space-around; 
+            padding: 12px 0; z-index: 50;
+            border-top: 2px solid #334155;
+        }
+        .nav-item { color: #94a3b8; transition: all 0.3s; }
+        .active-nav { color: #ffffff !important; }
+        
+        .glass-card { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border: 1px solid #e2e8f0; }
+        input, select { border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px; width: 100%; font-size: 16px; }
+        input:focus { border-color: #1e293b; outline: none; ring: 2px solid rgba(15, 23, 42, 0.1); }
     </style>
 </head>
 <body>
 
-    <header class="bg-emerald-600 text-white p-6 rounded-b-3xl shadow-lg mb-6">
-        <h1 class="text-xl font-bold">BUMDes Ngabei Berkah</h1>
-        <div class="mt-4 grid grid-cols-2 gap-4">
-            <div class="bg-white/20 p-3 rounded-xl">
-                <p class="text-xs opacity-80">Saldo Bersih Hari Ini</p>
-                <h2 id="dash-saldo" class="text-lg font-bold">Rp 0</h2>
+    <header class="bg-navy text-white p-6 rounded-b-[40px] shadow-2xl mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-lg font-bold tracking-tight">BUMDes Ngabei Berkah</h1>
+            <div class="bg-white/10 p-2 rounded-full"><i data-lucide="user" size="20"></i></div>
+        </div>
+        <div class="mt-2 grid grid-cols-2 gap-4">
+            <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/5">
+                <p class="text-[10px] uppercase tracking-widest opacity-70 mb-1">Saldo Bersih Hari Ini</p>
+                <h2 id="dash-saldo" class="text-xl font-bold">Rp 0</h2>
             </div>
-            <div class="bg-white/20 p-3 rounded-xl">
-                <p class="text-xs opacity-80">Total Transaksi</p>
-                <h2 id="dash-count" class="text-lg font-bold text-emerald-100">0</h2>
+            <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/5">
+                <p class="text-[10px] uppercase tracking-widest opacity-70 mb-1">Total Transaksi</p>
+                <h2 id="dash-count" class="text-xl font-bold text-blue-200">0</h2>
             </div>
         </div>
     </header>
@@ -36,20 +52,20 @@
         </main>
 
     <nav class="bottom-nav">
-        <button onclick="showPage('kasir')" class="nav-item flex flex-col items-center gap-1 active-nav" id="nav-kasir">
-            <i data-lucide="shopping-cart"></i><span class="text-[10px]">KASIR</span>
+        <button onclick="showPage('kasir')" class="nav-item flex flex-col items-center gap-1" id="nav-kasir">
+            <i data-lucide="layout-grid"></i><span class="text-[11px] font-semibold">Kasir</span>
         </button>
-        <button onclick="showPage('biaya')" class="nav-item flex flex-col items-center gap-1 text-gray-400" id="nav-biaya">
-            <i data-lucide="wallet"></i><span class="text-[10px]">BIAYA</span>
+        <button onclick="showPage('biaya')" class="nav-item flex flex-col items-center gap-1" id="nav-biaya">
+            <i data-lucide="receipt"></i><span class="text-[11px] font-semibold">Biaya</span>
         </button>
-        <button onclick="showPage('riwayat')" class="nav-item flex flex-col items-center gap-1 text-gray-400" id="nav-riwayat">
-            <i data-lucide="history"></i><span class="text-[10px]">RIWAYAT</span>
+        <button onclick="showPage('riwayat')" class="nav-item flex flex-col items-center gap-1" id="nav-riwayat">
+            <i data-lucide="clock"></i><span class="text-[11px] font-semibold">Riwayat</span>
         </button>
-        <button onclick="showPage('laporan')" class="nav-item flex flex-col items-center gap-1 text-gray-400" id="nav-laporan">
-            <i data-lucide="bar-chart-3"></i><span class="text-[10px]">LAPORAN</span>
+        <button onclick="showPage('laporan')" class="nav-item flex flex-col items-center gap-1" id="nav-laporan">
+            <i data-lucide="file-bar-chart"></i><span class="text-[11px] font-semibold">Laporan</span>
         </button>
-        <button onclick="showPage('setting')" class="nav-item flex flex-col items-center gap-1 text-gray-400" id="nav-setting">
-            <i data-lucide="settings"></i><span class="text-[10px]">SETTING</span>
+        <button onclick="showPage('setting')" class="nav-item flex flex-col items-center gap-1" id="nav-setting">
+            <i data-lucide="menu"></i><span class="text-[11px] font-semibold">Menu</span>
         </button>
     </nav>
 
@@ -68,74 +84,116 @@
                 const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getData' }) });
                 dbData = await res.json();
                 updateDashboard();
-            } catch (e) { console.error("Sync error", e); }
+            } catch (e) { console.error("Koneksi gagal", e); }
         }
 
         function updateDashboard() {
-            const today = new Date().toLocaleDateString();
-            const trxToday = dbData.transaksi.filter(t => new Date(t[0]).toLocaleDateString() === today);
-            const expToday = dbData.biaya.filter(b => new Date(b[1]).toLocaleDateString() === today);
+            const now = new Date();
+            const todayStr = now.getFullYear() + '-' + (now.getMonth() + 1).toString().padStart(2, '0') + '-' + now.getDate().toString().padStart(2, '0');
             
-            const income = trxToday.reduce((acc, curr) => acc + curr[4], 0);
-            const expense = expToday.reduce((acc, curr) => acc + curr[3], 0);
+            const income = dbData.transaksi
+                .filter(t => t[0].startsWith(todayStr))
+                .reduce((acc, curr) => acc + curr[4], 0);
+            
+            const expense = dbData.biaya
+                .filter(b => b[1].startsWith(todayStr))
+                .reduce((acc, curr) => acc + curr[3], 0);
             
             document.getElementById('dash-saldo').innerText = `Rp ${(income - expense).toLocaleString()}`;
-            document.getElementById('dash-count').innerText = trxToday.length;
+            document.getElementById('dash-count').innerText = dbData.transaksi.filter(t => t[0].startsWith(todayStr)).length;
         }
 
         const pages = {
             kasir: `
-                <div class="glass-card p-6 rounded-2xl shadow-sm">
-                    <h3 class="font-bold mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-500"></i> Transaksi Baru</h3>
+                <div class="glass-card p-6 mb-4">
+                    <h3 class="font-bold text-gray-800 mb-4">Input Transaksi</h3>
                     <div class="space-y-4">
-                        <input type="text" id="k-admin" placeholder="Nama Petugas" required>
-                        <input type="number" id="k-kg" placeholder="Berat (kg)" oninput="calcTotal()" required>
-                        <input type="number" id="k-harga" placeholder="Harga (Rp)" oninput="calcTotal()" required>
-                        <div class="p-4 bg-emerald-50 rounded-xl text-center">
-                            <p class="text-xs text-emerald-600 font-semibold">TOTAL PEMBAYARAN</p>
-                            <h2 id="k-total-label" class="text-2xl font-bold text-emerald-700">Rp 0</h2>
+                        <input type="text" id="k-admin" placeholder="Nama Petugas">
+                        <input type="number" id="k-kg" placeholder="Berat (kg)" oninput="calcTotal()">
+                        <input type="number" id="k-harga" placeholder="Harga (Rp)" oninput="calcTotal()">
+                        <div class="p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center">
+                            <p class="text-[10px] text-gray-500 font-bold mb-1 uppercase">Total Bayar</p>
+                            <h2 id="k-total-label" class="text-2xl font-bold text-navy">Rp 0</h2>
                         </div>
-                        <div class="grid grid-cols-2 gap-3 mt-4">
-                            <button onclick="simpanTransaksi()" class="bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">SIMPAN</button>
-                            <button onclick="printStruk()" class="bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition">PRINT</button>
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <button onclick="simpanTransaksi()" class="bg-navy text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition">SIMPAN</button>
+                            <button onclick="printStruk()" class="bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition flex items-center justify-center gap-2"><i data-lucide="printer" size="18"></i> PRINT</button>
                         </div>
                     </div>
                 </div>`,
             biaya: `
-                <div class="glass-card p-6 rounded-2xl shadow-sm mb-4">
-                    <h3 class="font-bold mb-4">Input Pengeluaran</h3>
+                <div class="glass-card p-6 mb-4">
+                    <h3 class="font-bold text-gray-800 mb-4">Input Pengeluaran</h3>
                     <div class="space-y-3">
-                        <input type="text" id="b-ket" placeholder="Keterangan">
+                        <input type="text" id="b-ket" placeholder="Keterangan Pengeluaran">
                         <input type="number" id="b-nom" placeholder="Nominal (Rp)">
-                        <button onclick="simpanBiaya()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold">SIMPAN BIAYA</button>
+                        <button onclick="simpanBiaya()" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold shadow-md">SIMPAN BIAYA</button>
                     </div>
                 </div>
-                <div id="list-biaya" class="space-y-2"></div>`,
+                <div id="list-biaya" class="space-y-3 pb-4"></div>`,
             riwayat: `
-                <div class="flex justify-between items-center mb-4"><h3 class="font-bold">Riwayat Transaksi</h3></div>
+                <h3 class="font-bold text-gray-800 mb-4">Aktivitas Terbaru</h3>
                 <div id="list-riwayat" class="space-y-3"></div>`,
             laporan: `
-                <div class="glass-card p-6 rounded-2xl mb-4">
-                    <input type="month" id="lap-bulan" class="mb-4" onchange="generateLaporan()">
-                    <div id="lap-summary" class="space-y-2 text-sm"></div>
+                <div class="glass-card p-6 mb-4">
+                    <p class="text-xs font-bold text-gray-500 mb-2 uppercase">Pilih Periode Laporan</p>
+                    <input type="month" id="lap-bulan" class="mb-4" onchange="renderLaporan()">
+                    <div id="lap-summary" class="grid grid-cols-1 gap-3"></div>
                 </div>
-                <div id="lap-table" class="overflow-x-auto text-xs"></div>`,
+                <div id="lap-detail" class="space-y-2"></div>`,
             setting: `
-                <div class="glass-card p-6 rounded-2xl text-center space-y-4">
-                    <button onclick="exportExcel()" class="w-full border-2 border-emerald-500 text-emerald-600 py-3 rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="file-text"></i> BACKUP EXCEL</button>
-                    <button onclick="resetData()" class="w-full bg-red-100 text-red-600 py-3 rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="trash-2"></i> RESET DATA</button>
+                <div class="glass-card p-6 space-y-4">
+                    <div class="flex items-center gap-4 p-2 border-b border-gray-100">
+                        <div class="bg-blue-100 p-3 rounded-xl text-blue-600"><i data-lucide="database"></i></div>
+                        <div><p class="font-bold">Database</p><p class="text-xs text-gray-500">Google Sheets Cloud</p></div>
+                    </div>
+                    <button onclick="location.reload()" class="w-full bg-gray-100 text-gray-800 py-3 rounded-xl font-bold">Refresh Data</button>
+                    <button onclick="resetData()" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold border border-red-100">Reset Semua Data</button>
                 </div>`
         };
 
         function showPage(page) {
             document.getElementById('app-content').innerHTML = pages[page];
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.replace('active-nav', 'text-gray-400'));
-            document.getElementById(`nav-${page}`).classList.replace('text-gray-400', 'active-nav');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav'));
+            document.getElementById(`nav-${page}`).classList.add('active-nav');
             lucide.createIcons();
             if(page === 'riwayat') renderRiwayat();
             if(page === 'biaya') renderBiaya();
+            if(page === 'laporan') {
+                const now = new Date();
+                document.getElementById('lap-bulan').value = now.toISOString().slice(0, 7);
+                renderLaporan();
+            }
         }
 
+        // --- Logika Laporan yang Diperbaiki ---
+        function renderLaporan() {
+            const targetBulan = document.getElementById('lap-bulan').value; // format YYYY-MM
+            if(!targetBulan) return;
+
+            const filteredTrx = dbData.transaksi.filter(t => t[0].startsWith(targetBulan));
+            const filteredExp = dbData.biaya.filter(b => b[1].startsWith(targetBulan));
+
+            const totalIn = filteredTrx.reduce((a, b) => a + b[4], 0);
+            const totalOut = filteredExp.reduce((a, b) => a + b[3], 0);
+
+            document.getElementById('lap-summary').innerHTML = `
+                <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Total Penjualan</p>
+                    <p class="text-xl font-bold text-emerald-700">Rp ${totalIn.toLocaleString()}</p>
+                </div>
+                <div class="p-4 bg-red-50 rounded-xl border border-red-100">
+                    <p class="text-[10px] text-red-600 font-bold uppercase">Total Pengeluaran</p>
+                    <p class="text-xl font-bold text-red-700">Rp ${totalOut.toLocaleString()}</p>
+                </div>
+                <div class="p-4 bg-navy rounded-xl text-white">
+                    <p class="text-[10px] opacity-70 font-bold uppercase">Laba Bersih</p>
+                    <p class="text-xl font-bold">Rp ${(totalIn - totalOut).toLocaleString()}</p>
+                </div>
+            `;
+        }
+
+        // --- Logika Lainnya ---
         function calcTotal() {
             const kg = document.getElementById('k-kg').value || 0;
             const harga = document.getElementById('k-harga').value || 0;
@@ -150,14 +208,13 @@
                 harga: parseFloat(document.getElementById('k-harga').value),
                 total: parseFloat(document.getElementById('k-kg').value) * parseFloat(document.getElementById('k-harga').value)
             };
-            if(!data.admin || !data.kg) return alert("Isi data lengkap!");
+            if(!data.admin || !data.kg || !data.harga) return alert("Mohon lengkapi data!");
             
+            document.getElementById('app-content').innerHTML = `<div class="text-center p-10"><p class="animate-pulse">Menyimpan...</p></div>`;
             await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
-            alert("Berhasil Simpan!");
-            document.getElementById('k-kg').value = "";
-            document.getElementById('k-harga').value = "";
-            calcTotal();
-            refreshData();
+            await refreshData();
+            showPage('kasir');
+            alert("Transaksi Tersimpan!");
         }
 
         async function simpanBiaya() {
@@ -166,35 +223,38 @@
                 keterangan: document.getElementById('b-ket').value,
                 nominal: parseFloat(document.getElementById('b-nom').value)
             };
+            if(!data.keterangan || !data.nominal) return alert("Lengkapi data biaya!");
             await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
-            refreshData();
+            await refreshData();
             showPage('biaya');
         }
 
         function renderRiwayat() {
             const container = document.getElementById('list-riwayat');
-            container.innerHTML = dbData.transaksi.slice().reverse().map(t => `
-                <div class="glass-card p-4 rounded-xl flex justify-between items-center">
+            if(dbData.transaksi.length === 0) container.innerHTML = `<p class="text-center text-gray-400 py-10">Belum ada transaksi</p>`;
+            else container.innerHTML = dbData.transaksi.slice().reverse().map(t => `
+                <div class="glass-card p-4 flex justify-between items-center border-l-4 border-navy">
                     <div>
-                        <p class="text-[10px] text-gray-400">${new Date(t[0]).toLocaleString('id-ID')}</p>
-                        <p class="font-bold">${t[1]} (${t[2]}kg)</p>
+                        <p class="text-[10px] text-gray-400 font-bold">${new Date(t[0]).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})}</p>
+                        <p class="font-bold text-gray-800">${t[1]} <span class="font-normal text-gray-500">(${t[2]}kg)</span></p>
                     </div>
-                    <p class="font-bold text-emerald-600">Rp ${t[4].toLocaleString()}</p>
+                    <p class="font-bold text-navy">Rp ${t[4].toLocaleString()}</p>
                 </div>
             `).join('');
         }
 
         function renderBiaya() {
             const container = document.getElementById('list-biaya');
-            container.innerHTML = dbData.biaya.slice().reverse().map(b => `
-                <div class="glass-card p-4 rounded-xl flex justify-between items-center border-l-4 border-red-400">
+            if(dbData.biaya.length === 0) container.innerHTML = `<p class="text-center text-gray-400 py-10">Tidak ada pengeluaran</p>`;
+            else container.innerHTML = dbData.biaya.slice().reverse().map(b => `
+                <div class="glass-card p-4 flex justify-between items-center border-l-4 border-red-500">
                     <div>
-                        <p class="text-[10px] text-gray-400">${new Date(b[1]).toLocaleDateString()}</p>
-                        <p class="font-bold text-sm">${b[2]}</p>
+                        <p class="text-[10px] text-gray-400 font-bold">${new Date(b[1]).toLocaleDateString()}</p>
+                        <p class="font-bold text-gray-800">${b[2]}</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <p class="font-bold text-red-500 text-sm">Rp ${b[3].toLocaleString()}</p>
-                        <button onclick="hapusBiaya('${b[0]}')" class="text-gray-300"><i data-lucide="x-circle"></i></button>
+                        <p class="font-bold text-red-600">Rp ${b[3].toLocaleString()}</p>
+                        <button onclick="hapusBiaya('${b[0]}')" class="text-gray-300 active:text-red-500"><i data-lucide="trash" size="16"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -202,18 +262,18 @@
         }
 
         async function hapusBiaya(id) {
-            if(!confirm("Hapus biaya ini?")) return;
+            if(!confirm("Hapus catatan biaya ini?")) return;
             await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'hapusBiaya', id }) });
-            refreshData();
+            await refreshData();
             showPage('biaya');
         }
 
         function printStruk() {
-            const admin = document.getElementById('k-admin').value;
-            const kg = document.getElementById('k-kg').value;
-            const harga = document.getElementById('k-harga').value;
+            const admin = document.getElementById('k-admin').value || "-";
+            const kg = document.getElementById('k-kg').value || 0;
+            const harga = document.getElementById('k-harga').value || 0;
             const total = kg * harga;
-            const date = new Date().toLocaleString();
+            const date = new Date().toLocaleString('id-ID');
 
             const struk = `
 BUMDes Ngabei Berkah
@@ -221,21 +281,21 @@ BUMDes Ngabei Berkah
 Tgl   : ${date}
 Admin : ${admin}
 ---------------------------
-Kg    : ${kg}
-Harga : Rp ${harga}
-Total : Rp ${total}
+Item  : Timbangan
+Berat : ${kg} kg
+Harga : Rp ${harga.toLocaleString()}
+Total : Rp ${total.toLocaleString()}
 ---------------------------
-TERIMA KASIH
+      TERIMA KASIH
+    SIMPAN STRUK INI
             `;
-            
-            // RawBT integration
             window.location.href = "rawbt:base64," + btoa(struk);
         }
 
-        function resetData() {
-            if(confirm("Hapus semua data di cloud?")) {
-                fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'resetData' }) })
-                .then(() => { alert("Data direset"); location.reload(); });
+        async function resetData() {
+            if(confirm("PERINGATAN: Hapus semua data selamanya?")) {
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'resetData' }) });
+                location.reload();
             }
         }
 
